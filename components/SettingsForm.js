@@ -166,11 +166,11 @@ export default function SettingsForm({ user }) {
             type="file"
           />
         </FieldControl>
-        <div className="flex min-w-0 items-end overflow-hidden">
+        <div className="flex min-w-0 items-end overflow-hidden rounded-xl bg-white/70 p-3">
           {form.signatureImage ? (
             <img
               alt="Uploaded signature preview"
-              className="max-h-20 max-w-56 rounded-lg border border-slate-200 bg-white object-contain p-2"
+              className="max-h-20 max-w-full rounded-lg border border-slate-200 bg-white object-contain p-2 sm:max-w-56"
               src={form.signatureImage}
             />
           ) : (
@@ -187,8 +187,8 @@ export default function SettingsForm({ user }) {
           />
         </FieldControl>
         <div className="flex flex-col gap-3 md:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">{status}</p>
-          <button className="button-primary sm:w-auto" type="submit">
+          <p className="min-h-5 break-words text-sm text-slate-500">{status}</p>
+          <button className="button-primary w-full sm:w-auto" type="submit">
             Save settings
           </button>
         </div>

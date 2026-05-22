@@ -21,6 +21,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -51,6 +57,7 @@ body::before {
 a {
   color: inherit;
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 button,
@@ -58,6 +65,19 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 textarea {
@@ -74,12 +94,12 @@ textarea {
 }
 
 .glass-card {
-  @apply rounded-3xl border bg-white/90 shadow-[var(--shadow)] backdrop-blur-xl;
+  @apply rounded-2xl border bg-white/95 shadow-[var(--shadow)] backdrop-blur-xl;
   border-color: var(--border);
 }
 
 .hero-card {
-  @apply rounded-3xl border shadow-[var(--shadow)];
+  @apply rounded-2xl border shadow-[var(--shadow)];
   border-color: rgba(255, 255, 255, 0.24);
   background:
     linear-gradient(135deg, rgba(15, 118, 110, 0.95) 0%, rgba(17, 94, 89, 0.96) 42%, rgba(17, 24, 39, 0.98) 100%);
@@ -90,35 +110,63 @@ textarea {
 }
 
 .button-primary {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center font-semibold text-white transition-all duration-200;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 text-center font-semibold text-white transition-all duration-200;
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
   box-shadow: 0 16px 40px -24px rgba(15, 118, 110, 0.9);
 }
 
 .button-primary:hover {
   transform: translateY(-1px);
+  filter: saturate(1.08) brightness(1.02);
+}
+
+.button-primary:disabled,
+.button-secondary:disabled,
+.button-light:disabled,
+.button-dark:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .button-secondary {
-  @apply inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-center font-medium text-slate-700 transition-all duration-200;
-  border-color: rgba(15, 23, 42, 0.12);
-  background: rgba(255, 255, 255, 0.92);
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-center font-medium text-slate-800 transition-all duration-200;
+  border-color: rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.button-secondary:hover {
+  border-color: rgba(15, 118, 110, 0.34);
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .button-light {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-slate-950 transition;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold text-slate-950 transition;
   background: #ecfeff;
 }
 
+.button-light:hover {
+  background: #cffafe;
+}
+
 .button-dark {
-  @apply inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 font-semibold text-white transition;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-5 py-3 font-semibold text-white transition;
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(17, 24, 39, 0.3);
 }
 
+.button-dark:hover {
+  background: rgba(17, 24, 39, 0.48);
+}
+
 .field {
-  @apply w-full min-w-0 rounded-2xl border bg-white/84 px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200;
-  border-color: rgba(15, 23, 42, 0.13);
+  @apply w-full min-w-0 rounded-xl border bg-white px-4 py-3 text-base text-slate-950 outline-none transition-all duration-200 sm:text-sm;
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+.field::placeholder {
+  color: #64748b;
 }
 
 .field:disabled {
@@ -138,19 +186,12 @@ textarea {
       linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
   }
 
-  .glass-card {
-    border-radius: 1.25rem;
+  .font-display {
+    line-height: 1.08;
   }
 
-  .button-primary,
-  .button-secondary,
-  .button-light,
-  .button-dark {
-    width: 100%;
-  }
-
-  .field {
-    border-radius: 1rem;
+  [class*="tracking-["] {
+    letter-spacing: 0.08em;
   }
 }
 
@@ -161,7 +202,7 @@ textarea {
 
 .invoice-sheet {
   width: 210mm;
-  max-width: 100%;
+  max-width: none;
   min-height: 297mm;
 }
 
@@ -190,6 +231,17 @@ textarea {
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .invoice-sheet {
+    width: 720px;
+    min-height: auto;
+  }
+
+  .invoice-sheet article {
+    min-height: auto;
+  }
 }
 
 @media print {

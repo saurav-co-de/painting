@@ -106,7 +106,7 @@ export default function InvoiceBuilder({ customers, user }) {
   }
 
   return (
-    <form className="grid gap-5 2xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]" onSubmit={handleSubmit}>
+    <form className="grid gap-4 2xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] 2xl:gap-5" onSubmit={handleSubmit}>
       <section className="glass-card min-w-0 p-4 sm:p-6 lg:p-8">
         <div className="grid gap-4 md:grid-cols-2">
           <FieldLabel label="Project or site name">
@@ -196,7 +196,7 @@ export default function InvoiceBuilder({ customers, user }) {
 
         <div className="mt-8 space-y-4">
           {items.map((item, index) => (
-            <div className="rounded-2xl border border-slate-200/70 bg-white/75 p-4" key={index}>
+            <div className="rounded-xl border border-slate-200/80 bg-white/85 p-4" key={index}>
               <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-[2fr_0.7fr_0.7fr_0.9fr_0.8fr_auto]">
                 <FieldLabel label="Description">
                   <input
@@ -246,7 +246,7 @@ export default function InvoiceBuilder({ customers, user }) {
                   />
                 </FieldLabel>
                 <button
-                  className="self-end rounded-full border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900"
+                  className="inline-flex min-h-11 items-center justify-center self-end rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100"
                   onClick={() => removeItem(index)}
                   type="button"
                 >
@@ -258,10 +258,10 @@ export default function InvoiceBuilder({ customers, user }) {
         </div>
 
         <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row">
-          <button className="button-secondary sm:w-auto" onClick={addItem} type="button">
+          <button className="button-secondary w-full sm:w-auto" onClick={addItem} type="button">
             Add item
           </button>
-          <button className="button-primary sm:w-auto" disabled={isSaving} type="submit">
+          <button className="button-primary w-full sm:w-auto" disabled={isSaving} type="submit">
             {isSaving ? "Creating..." : "Create invoice"}
           </button>
         </div>
@@ -288,7 +288,7 @@ export default function InvoiceBuilder({ customers, user }) {
       </section>
 
       <aside className="glass-card min-w-0 p-4 sm:p-6 lg:p-8 2xl:sticky 2xl:top-4 2xl:self-start">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--brand)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
           Live Preview
         </p>
         <h3 className="font-display mt-3 text-2xl text-slate-950">
@@ -298,7 +298,7 @@ export default function InvoiceBuilder({ customers, user }) {
           {user.address || "Add your business address in settings."}
         </p>
 
-        <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white/85 p-5">
+        <div className="mt-6 rounded-xl border border-slate-200/80 bg-white/85 p-5">
           <p className="text-sm font-semibold text-slate-950">
             {selectedCustomer?.customerName || "Select a customer"}
           </p>
@@ -309,19 +309,19 @@ export default function InvoiceBuilder({ customers, user }) {
 
         <div className="mt-6 space-y-3">
           {preview.items.map((item) => (
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/75 px-4 py-3" key={item.id}>
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-white/85 px-4 py-3" key={item.id}>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-950">{item.description || "Untitled item"}</p>
-                <p className="break-words text-xs uppercase tracking-[0.14em] text-slate-500">
+                <p className="break-words text-sm font-medium text-slate-950">{item.description || "Untitled item"}</p>
+                <p className="break-words text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.14em]">
                   {item.quantity} {item.unit} x {formatCurrency(item.rate)}
                 </p>
               </div>
-              <p className="shrink-0 text-sm font-semibold text-slate-950">{formatCurrency(item.amount)}</p>
+              <p className="shrink-0 text-right text-sm font-semibold text-slate-950">{formatCurrency(item.amount)}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl bg-slate-950 p-5 text-white">
+        <div className="mt-6 rounded-xl bg-slate-950 p-5 text-white">
           <div className="flex justify-between text-sm text-slate-300">
             <span>Subtotal</span>
             <span>{formatCurrency(preview.totals.subtotal)}</span>

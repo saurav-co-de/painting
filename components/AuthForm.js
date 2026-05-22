@@ -119,7 +119,7 @@ export default function AuthForm({ mode }) {
   return (
     <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-5 px-3 py-5 sm:px-6 sm:py-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
       <section className="glass-card overflow-hidden p-5 sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--brand)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
           Indian GST Billing
         </p>
         <h1 className="font-display mt-4 text-3xl text-slate-950 sm:text-5xl">
@@ -132,20 +132,20 @@ export default function AuthForm({ mode }) {
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <div className="stat-card">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Templates</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">Templates</p>
             <p className="mt-3 text-2xl font-semibold text-slate-950">GST Ready</p>
           </div>
           <div className="stat-card">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Exports</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">Exports</p>
             <p className="mt-3 text-2xl font-semibold text-slate-950">PDF + Print</p>
           </div>
           <div className="stat-card">
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Sharing</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">Sharing</p>
             <p className="mt-3 text-2xl font-semibold text-slate-950">Email + WhatsApp</p>
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-dashed border-[var(--border-strong)] bg-white/60 p-5 text-sm leading-7 text-slate-600">
+        <div className="mt-8 rounded-xl border border-dashed border-[var(--border-strong)] bg-white/70 p-5 text-sm leading-7 text-slate-600">
           Demo access:
           <br />
           Email: <strong>demo@buildbill.ai</strong>
@@ -158,7 +158,7 @@ export default function AuthForm({ mode }) {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--accent)] sm:tracking-[0.28em]">
                 {isSignup ? "Create Account" : "Secure Login"}
               </p>
               <h2 className="font-display mt-2 text-2xl text-slate-950 sm:text-3xl">
@@ -215,7 +215,7 @@ export default function AuthForm({ mode }) {
 
           {status.message ? (
             <div
-              className={`rounded-[1.5rem] border px-4 py-3 text-sm ${
+              className={`rounded-xl border px-4 py-3 text-sm ${
                 status.tone === "error"
                   ? "border-rose-200 bg-rose-50 text-rose-900"
                   : "border-emerald-200 bg-emerald-50 text-emerald-900"
@@ -246,7 +246,7 @@ export default function AuthForm({ mode }) {
 
           <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
             <button
-              className="text-left font-medium text-[var(--brand)]"
+              className="text-left font-medium text-[var(--brand)] hover:text-[var(--brand-strong)]"
               onClick={handleForgotPassword}
               type="button"
             >

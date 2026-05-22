@@ -13,7 +13,7 @@ export default function AboutPage() {
       <PublicNav />
       <main className="mx-auto w-full max-w-[1800px] px-3 py-5 sm:px-6 sm:py-10 xl:px-8">
         <section className="glass-card p-5 sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--brand)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
             About BuildBill AI
           </p>
           <h1 className="font-display mt-4 text-3xl text-slate-950 sm:text-5xl">
@@ -27,14 +27,14 @@ export default function AboutPage() {
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {values.map((value) => (
-              <article className="rounded-2xl border border-slate-200/80 bg-white/80 p-5" key={value}>
+              <article className="rounded-xl border border-slate-200/80 bg-white/85 p-5" key={value}>
                 <p className="text-sm leading-7 text-slate-700">{value}</p>
               </article>
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl bg-slate-950 p-5 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+          <div className="mt-8 rounded-xl bg-slate-950 p-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400 sm:tracking-[0.24em]">
               Built for Indian billing workflows
             </p>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-200">

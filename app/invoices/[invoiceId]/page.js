@@ -59,13 +59,13 @@ export default async function InvoiceDetailPage({ params }) {
         title={`Invoice ${invoice.invoiceNumber}`}
         user={user}
       >
-        <section className="glass-card overflow-x-auto p-3 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
+        <section className="glass-card mobile-scrollbar overflow-x-auto p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
           <div className="invoice-sheet mx-auto bg-white p-4 text-slate-950 shadow-sm ring-1 ring-slate-200 sm:p-6 print:p-0 print:shadow-none print:ring-0">
             <article className="flex min-h-[277mm] flex-col border-2 border-slate-900 p-4 font-sans text-[12px] leading-5 sm:p-5 print:min-h-[277mm]">
               <header className="border-b-2 border-slate-700 pb-2">
-                <div className="flex justify-between gap-4 text-sm font-medium text-slate-700">
-                  <span>GSTIN : {companyDetails.gstin || "-"}</span>
-                  <span>Mob : {companyDetails.phone || "-"}</span>
+                <div className="flex flex-wrap justify-between gap-2 text-sm font-medium text-slate-700">
+                  <span className="break-words">GSTIN : {companyDetails.gstin || "-"}</span>
+                  <span className="break-words">Mob : {companyDetails.phone || "-"}</span>
                 </div>
                 <h2 className="mt-2 text-center text-3xl font-bold uppercase text-red-700 sm:text-4xl">
                   {companyDetails.companyName}
@@ -231,7 +231,7 @@ export default async function InvoiceDetailPage({ params }) {
               <div className="mt-auto grid grid-cols-[1fr_14rem] items-end gap-8 pt-10 font-medium">
                 <p className="pb-2">Thanking You</p>
                 <div className="justify-self-end text-center">
-                  <p className="mb-2 whitespace-nowrap">For {companyDetails.companyName}</p>
+                  <p className="mb-2 max-w-56 break-words">For {companyDetails.companyName}</p>
                   <div className="flex h-14 w-56 items-center justify-center overflow-hidden">
                     {companyDetails.signatureImage ? (
                       <img

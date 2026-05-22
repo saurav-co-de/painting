@@ -86,10 +86,10 @@ export default function InvoicesTable({ initialInvoices }) {
 
       <div className="mt-6 space-y-3 md:hidden">
         {filteredInvoices.map((invoice) => (
-          <article className="rounded-2xl border border-slate-200/80 bg-white/80 p-4" key={invoice.id}>
+          <article className="rounded-xl border border-slate-200/80 bg-white/90 p-4" key={invoice.id}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <Link className="font-semibold text-slate-950" href={`/invoices/${invoice.id}`}>
+                <Link className="break-words font-semibold text-slate-950" href={`/invoices/${invoice.id}`}>
                   {invoice.invoiceNumber}
                 </Link>
                 <p className="mt-1 break-words text-sm text-slate-500">{invoice.projectName}</p>
@@ -98,7 +98,7 @@ export default function InvoicesTable({ initialInvoices }) {
                 </p>
               </div>
               <span
-                className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+                className={`shrink-0 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${
                   invoice.paymentStatus === "Paid"
                     ? "bg-emerald-100 text-emerald-900"
                     : invoice.paymentStatus === "Overdue"
@@ -111,13 +111,13 @@ export default function InvoicesTable({ initialInvoices }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-2xl bg-slate-50 p-3">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Due</p>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-[0.08em] text-slate-500">Due</p>
                 <p className="mt-1 font-semibold text-slate-950">{invoice.dueDate}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3 text-right">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500">Balance</p>
-                <p className="mt-1 font-semibold text-slate-950">
+              <div className="rounded-xl bg-slate-50 p-3 text-right">
+                <p className="text-xs uppercase tracking-[0.08em] text-slate-500">Balance</p>
+                <p className="mt-1 break-words font-semibold text-slate-950">
                   {formatCurrency(invoice.balanceDue ?? invoice.totals.grandTotal)}
                 </p>
               </div>
@@ -181,7 +181,7 @@ export default function InvoicesTable({ initialInvoices }) {
                 </td>
                 <td className="py-4 pr-4">
                   <span
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${
+                    className={`inline-flex rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] ${
                       invoice.paymentStatus === "Paid"
                         ? "bg-emerald-100 text-emerald-900"
                         : invoice.paymentStatus === "Overdue"
@@ -220,7 +220,7 @@ export default function InvoicesTable({ initialInvoices }) {
       </div>
 
       {!filteredInvoices.length ? (
-        <div className="mt-8 rounded-[1.75rem] border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
+        <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-sm text-slate-500">
           No invoices matched your filters.
         </div>
       ) : null}

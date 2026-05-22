@@ -8,7 +8,7 @@ import { readDatabase } from "@/lib/db";
 function MetricCard({ label, value, tone }) {
   return (
     <div className={`stat-card ${tone === "dark" ? "bg-slate-950 text-white" : ""}`}>
-      <p className={`text-xs uppercase tracking-[0.18em] ${tone === "dark" ? "text-slate-400" : "text-slate-500"}`}>
+      <p className={`text-xs uppercase tracking-[0.08em] sm:tracking-[0.18em] ${tone === "dark" ? "text-slate-400" : "text-slate-500"}`}>
         {label}
       </p>
       <p className="mt-4 break-words text-2xl font-semibold sm:text-3xl">{value}</p>
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
           <div className="glass-card p-4 sm:p-6 lg:p-8">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--accent)] sm:tracking-[0.28em]">
                   Recent invoices
                 </p>
                 <h3 className="font-display mt-3 text-2xl text-slate-950">Latest billing activity</h3>
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-6 space-y-4">
               {invoices.slice(0, 5).map((invoice) => (
-                <article className="rounded-2xl border border-slate-200/80 bg-white/75 p-4 sm:p-5" key={invoice.id}>
+                <article className="rounded-xl border border-slate-200/80 bg-white/85 p-4 sm:p-5" key={invoice.id}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <Link className="text-lg font-semibold text-slate-950" href={`/invoices/${invoice.id}`}>
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
                       <p className="text-sm font-semibold text-slate-950">
                         {formatCurrency(invoice.totals.grandTotal)}
                       </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
+                      <p className="mt-1 text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">
                         {invoice.paymentStatus}
                       </p>
                     </div>
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="glass-card p-4 sm:p-6 lg:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--brand)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
               BuildBill AI roadmap
             </p>
             <div className="mt-5 space-y-4">
@@ -88,14 +88,14 @@ export default async function DashboardPage() {
                 "Voice billing workflows for rapid contractor invoicing on-site",
                 "Inventory, quotations, purchase orders, and analytics in future phases"
               ].map((point) => (
-                <div className="rounded-2xl bg-white/75 p-4 text-sm leading-7 text-slate-700" key={point}>
+                <div className="rounded-xl bg-white/85 p-4 text-sm leading-7 text-slate-700" key={point}>
                   {point}
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl bg-slate-950 p-5 text-white">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Quick actions</p>
+            <div className="mt-6 rounded-xl bg-slate-950 p-5 text-white">
+              <p className="text-xs uppercase tracking-[0.08em] text-slate-400 sm:tracking-[0.18em]">Quick actions</p>
               <div className="mt-4 flex flex-col gap-3">
                 <Link className="button-light w-full justify-center" href="/customers">
                   Manage customers

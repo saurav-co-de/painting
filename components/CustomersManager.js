@@ -90,7 +90,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
   }
 
   return (
-    <div className="grid gap-5 2xl:grid-cols-[0.85fr_1.15fr]">
+    <div className="grid gap-4 2xl:grid-cols-[0.85fr_1.15fr] 2xl:gap-5">
       <section className="glass-card p-4 sm:p-6 lg:p-8">
         <h3 className="font-display text-2xl text-slate-950">
           {form.id ? "Edit customer" : "Add customer"}
@@ -153,7 +153,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
         <div className="mt-6 space-y-4">
           {filteredCustomers.map((customer) => (
             <article
-              className="rounded-2xl border border-slate-200/70 bg-white/75 p-4 sm:p-5"
+              className="rounded-xl border border-slate-200/80 bg-white/85 p-4 sm:p-5"
               key={customer.id}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -161,11 +161,19 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
                   <h4 className="text-lg font-semibold text-slate-950">
                     {customer.customerName}
                   </h4>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">{customer.address}</p>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
-                    <span>{customer.gstNumber || "GST pending"}</span>
-                    <span>{customer.mobile || "No mobile"}</span>
-                    <span>{invoiceCounts[customer.id] || 0} invoices</span>
+                  <p className="mt-2 break-words text-sm leading-7 text-slate-600">
+                    {customer.address || "No address saved."}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2 text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.14em]">
+                    <span className="max-w-full break-words rounded-lg bg-slate-50 px-2 py-1">
+                      {customer.gstNumber || "GST pending"}
+                    </span>
+                    <span className="max-w-full break-words rounded-lg bg-slate-50 px-2 py-1">
+                      {customer.mobile || "No mobile"}
+                    </span>
+                    <span className="rounded-lg bg-slate-50 px-2 py-1">
+                      {invoiceCounts[customer.id] || 0} invoices
+                    </span>
                   </div>
                 </div>
 
@@ -178,7 +186,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
                     Edit
                   </button>
                   <button
-                    className="rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-900"
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100"
                     onClick={() => handleDelete(customer.id)}
                     type="button"
                   >
@@ -190,7 +198,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
           ))}
 
           {!filteredCustomers.length ? (
-            <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
+            <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-sm text-slate-500">
               No customers found yet.
             </div>
           ) : null}
