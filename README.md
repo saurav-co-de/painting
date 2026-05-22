@@ -32,9 +32,14 @@ Copy `.env.example` to `.env.local` for local secrets:
 ```bash
 SESSION_SECRET=replace-with-a-long-random-secret
 DATABASE_URL=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+RESEND_API_KEY=
+EMAIL_FROM=BuildBill AI <onboarding@resend.dev>
 ```
 
 When `DATABASE_URL` is empty, the app uses the local JSON demo database. For Vercel or any real deployment, set `DATABASE_URL` to a hosted Postgres connection string from Neon, Supabase, Vercel Storage, or another Postgres provider.
+
+Password reset emails are sent with Resend when `RESEND_API_KEY` is set. In local development, if Resend is not configured, the forgot-password response includes the reset link so you can test the flow.
 
 ## Supabase setup
 
@@ -49,6 +54,19 @@ SESSION_SECRET=replace-with-a-long-random-secret
 ```
 
 The first time the app connects, it creates the `users`, `customers`, and `invoices` tables automatically.
+
+## Password reset setup
+
+1. Create a Resend account and API key.
+2. Add these variables in Vercel:
+
+```bash
+RESEND_API_KEY=re_xxxxxxxxx
+EMAIL_FROM=BuildBill AI <your-verified-email@yourdomain.com>
+NEXT_PUBLIC_APP_URL=https://your-vercel-domain.vercel.app
+```
+
+Forgot-password requests create a secure 30-minute reset link. Only a hashed token is stored in the database.
 
 ## Key routes
 
@@ -68,6 +86,7 @@ The first time the app connects, it creates the `users`, `customers`, and `invoi
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
 - `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 - `GET /api/me`
 - `GET /api/dashboard`
 - `GET /api/customers`

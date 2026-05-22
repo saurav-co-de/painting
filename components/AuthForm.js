@@ -104,7 +104,7 @@ export default function AuthForm({ mode }) {
 
       setStatus({
         tone: "success",
-        message: payload.message
+        message: payload.resetUrl ? `${payload.message} ${payload.resetUrl}` : payload.message
       });
     } catch (error) {
       setStatus({
