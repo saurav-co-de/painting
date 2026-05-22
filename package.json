@@ -1,0 +1,22 @@
+{
+  "name": "buildbill-ai",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.5",
+    "googleapis": "^157.0.0",
+    "next": "^16.0.0",
+    "pg": "^8.21.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.5"
+  }
+}

@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --font-display: "Bahnschrift", "Trebuchet MS", sans-serif;
+  --surface: #eef2f7;
+  --surface-deep: #e0e7ef;
+  --card: rgba(255, 255, 255, 0.92);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  --text: #162033;
+  --muted: #64748b;
+  --brand: #0f766e;
+  --brand-strong: #115e59;
+  --accent: #b45309;
+  --ink: #111827;
+  --shadow: 0 24px 80px -44px rgba(15, 23, 42, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-sans), sans-serif;
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.1), transparent 28%),
+    linear-gradient(315deg, rgba(180, 83, 9, 0.09), transparent 24%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 48%, #e6edf5 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent 82%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+::selection {
+  color: white;
+  background: rgba(192, 90, 43, 0.8);
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+.glass-card {
+  @apply rounded-3xl border bg-white/90 shadow-[var(--shadow)] backdrop-blur-xl;
+  border-color: var(--border);
+}
+
+.hero-card {
+  @apply rounded-3xl border shadow-[var(--shadow)];
+  border-color: rgba(255, 255, 255, 0.24);
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.95) 0%, rgba(17, 94, 89, 0.96) 42%, rgba(17, 24, 39, 0.98) 100%);
+}
+
+.stat-card {
+  @apply rounded-2xl border border-slate-200/75 bg-white px-4 py-4 shadow-sm shadow-slate-200/50 sm:px-5 sm:py-5;
+}
+
+.button-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center font-semibold text-white transition-all duration-200;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+  box-shadow: 0 16px 40px -24px rgba(15, 118, 110, 0.9);
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-center font-medium text-slate-700 transition-all duration-200;
+  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.button-light {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-semibold text-slate-950 transition;
+  background: #ecfeff;
+}
+
+.button-dark {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 font-semibold text-white transition;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(17, 24, 39, 0.3);
+}
+
+.field {
+  @apply w-full min-w-0 rounded-2xl border bg-white/84 px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200;
+  border-color: rgba(15, 23, 42, 0.13);
+}
+
+.field:disabled {
+  color: #94a3b8;
+  background: rgba(241, 245, 249, 0.85);
+  cursor: not-allowed;
+}
+
+.mobile-scrollbar {
+  scrollbar-width: thin;
+}
+
+@media (max-width: 640px) {
+  body {
+    background:
+      linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 46%),
+      linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  }
+
+  .glass-card {
+    border-radius: 1.25rem;
+  }
+
+  .button-primary,
+  .button-secondary,
+  .button-light,
+  .button-dark {
+    width: 100%;
+  }
+
+  .field {
+    border-radius: 1rem;
+  }
+}
+
+.field:focus {
+  border-color: rgba(15, 118, 110, 0.5);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+}
+
+.invoice-sheet {
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
+}
+
+.invoice-table {
+  table-layout: fixed;
+}
+
+.invoice-table th,
+.invoice-table td {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.invoice-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.premium-underline {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #020617;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  body::before {
+    display: none;
+  }
+
+  .invoice-sheet {
+    width: 190mm;
+    min-height: 277mm;
+  }
+}
