@@ -2,14 +2,12 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
 import { calculateInvoice, createInvoiceNumber, derivePaymentStatus } from "@/lib/billing";
-import { readDatabase, writeDatabase } from "@/lib/db";
+import { createInvoiceRecord, listCustomersForUser, listInvoicesForUser } from "@/lib/db";
 
 export async function GET() {
   try {
     const user = await requireUser();
-    const database = await readDatabase();
-    const invoices = database.invoices
-      .filter((invoice) => invoice.userId === user.id)
+    const invoices = (await listInvoicesForUser(user.id))
       .map((invoice) => ({
         ...invoice,
         paymentStatus: derivePaymentStatus(invoice)
@@ -26,10 +24,11 @@ export async function POST(request) {
   try {
     const user = await requireUser();
     const payload = await request.json();
-    const database = await readDatabase();
-    const customer = database.customers.find(
-      (entry) => entry.id === payload.customerId && entry.userId === user.id
-    );
+    const [customers, existingInvoices] = await Promise.all([
+      listCustomersForUser(user.id),
+      listInvoicesForUser(user.id)
+    ]);
+    const customer = customers.find((entry) => entry.id === payload.customerId);
 
     if (!customer) {
       return NextResponse.json({ error: "Choose a valid customer first." }, { status: 400 });
@@ -47,9 +46,7 @@ export async function POST(request) {
     const invoice = {
       id: randomUUID(),
       userId: user.id,
-      invoiceNumber: createInvoiceNumber(
-        database.invoices.filter((invoiceEntry) => invoiceEntry.userId === user.id)
-      ),
+      invoiceNumber: createInvoiceNumber(existingInvoices),
       invoiceDate: payload.invoiceDate,
       dueDate: payload.dueDate,
       projectName: payload.projectName,
@@ -86,8 +83,7 @@ export async function POST(request) {
       updatedAt: new Date().toISOString()
     };
 
-    database.invoices.unshift(invoice);
-    await writeDatabase(database);
+    await createInvoiceRecord(invoice);
 
     return NextResponse.json({ invoice });
   } catch (error) {
