@@ -28,8 +28,10 @@ export default async function QuotationPage({ params }) {
   };
   const quoteSubject = quotation.description || quotation.projectName || "Work";
   const isWithoutGst = quotation.taxMode === "none";
+  const customerDetails = quotation.customerDetails || {};
+  const customerName = customerDetails.clientName || "";
   const shareText = encodeURIComponent(
-    `Quotation ${quotation.quotationNumber} for ${quotation.customerDetails.clientName} - ${formatCurrency(quotation.totals.grandTotal)}`
+    `Quotation ${quotation.quotationNumber}${customerName ? ` for ${customerName}` : ""} - ${formatCurrency(quotation.totals.grandTotal)}`
   );
 
   return (
@@ -75,9 +77,9 @@ export default async function QuotationPage({ params }) {
             <div className="mt-5 grid grid-cols-[1fr_auto_1fr] gap-4">
               <div className="font-medium">
                 <p>To,</p>
-                <p className="mt-5">{quotation.customerDetails.clientName}</p>
-                <p>{quotation.customerDetails.address}</p>
-                <p>GSTN : {quotation.customerDetails.gstNumber || "-"}</p>
+                {customerName ? <p className="mt-5">{customerName}</p> : null}
+                {customerDetails.address ? <p>{customerDetails.address}</p> : null}
+                {customerDetails.gstNumber ? <p>GSTN : {customerDetails.gstNumber}</p> : null}
               </div>
               <p className="self-start text-center font-semibold">
                 <span className="premium-underline">

@@ -11,8 +11,8 @@ export default function QuotationsTable({ quotations, user }) {
   const filtered = quotations.filter((quotation) => {
     const matchesSearch =
       String(quotation.quotationNumber || "").toLowerCase().includes(search.toLowerCase()) ||
-      quotation.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      quotation.projectName.toLowerCase().includes(search.toLowerCase());
+      String(quotation.customerName || "").toLowerCase().includes(search.toLowerCase()) ||
+      String(quotation.projectName || "").toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus = statusFilter === "All" || quotation.status === statusFilter;
 
@@ -104,7 +104,7 @@ export default function QuotationsTable({ quotations, user }) {
                   </div>
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600 sm:px-6 lg:px-8">
-                  {quotation.customerName}
+                  {quotation.customerName || "-"}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600 sm:px-6 lg:px-8">
                   {quotation.validityDate}

@@ -32,7 +32,8 @@ export default function QuotationBuilder({ customers, user }) {
     validityDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     projectName: "",
     description: "",
-    customerId: customers[0]?.id || "",
+    customerId: "",
+    customerName: "",
     taxMode: "intra",
     notes: "Thank you for considering us for this project.",
     terms: "Quotation is valid for 30 days from the date of issue.",
@@ -134,18 +135,27 @@ export default function QuotationBuilder({ customers, user }) {
               value={form.description}
             />
           </FieldLabel>
-          <FieldLabel label="Customer">
+          <FieldLabel label="Saved customer">
             <select
               className="field"
               onChange={(event) => updateForm("customerId", event.target.value)}
               value={form.customerId}
             >
+              <option value="">No saved customer</option>
               {customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.customerName}
                 </option>
               ))}
             </select>
+          </FieldLabel>
+          <FieldLabel label="Customer name">
+            <input
+              className="field"
+              onChange={(event) => updateForm("customerName", event.target.value)}
+              placeholder="Optional"
+              value={form.customerName}
+            />
           </FieldLabel>
           <FieldLabel label="Quotation date">
             <input
@@ -300,10 +310,10 @@ export default function QuotationBuilder({ customers, user }) {
 
         <div className="mt-6 rounded-xl border border-slate-200/80 bg-white/85 p-5">
           <p className="text-sm font-semibold text-slate-950">
-            {selectedCustomer?.customerName || "Select a customer"}
+            {selectedCustomer?.customerName || form.customerName || "No customer name"}
           </p>
           <p className="mt-2 text-sm leading-7 text-slate-500">
-            {selectedCustomer?.address || "Customer address will appear here."}
+            {selectedCustomer?.address || "Customer details are optional."}
           </p>
         </div>
 

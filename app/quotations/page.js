@@ -19,7 +19,9 @@ export default async function QuotationsPage() {
     const quotationsWithCustomer = quotations.map((quotation) => ({
       ...quotation,
       customerName:
-        customers.find((customer) => customer.id === quotation.customerId)?.customerName || "Unknown"
+        quotation.customerDetails?.clientName ||
+        customers.find((customer) => customer.id === quotation.customerId)?.customerName ||
+        ""
     }));
 
     return (
