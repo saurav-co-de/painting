@@ -7,7 +7,9 @@ import LogoutButton from "@/components/LogoutButton";
 const navigation = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/invoices", label: "Invoices" },
-  { href: "/invoices/new", label: "Create" },
+  { href: "/invoices/new", label: "Create Invoice" },
+  { href: "/quotations", label: "Quotations" },
+  { href: "/quotations/new", label: "Create Quotation" },
   { href: "/customers", label: "Customers" },
   { href: "/settings", label: "Settings" },
   { href: "/pricing", label: "Pricing" }
