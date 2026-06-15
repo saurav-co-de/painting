@@ -10,8 +10,6 @@ const navigation = [
   { href: "/invoices/new", label: "Create Invoice" },
   { href: "/quotations", label: "Quotations" },
   { href: "/quotations/new", label: "Create Quotation" },
-  { href: "/exactbills", label: "Exact Bills" },
-  { href: "/exactbills/new", label: "Create Exact Bill" },
   { href: "/customers", label: "Customers" },
   { href: "/settings", label: "Settings" },
   { href: "/pricing", label: "Pricing" }
