@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import AppShell from "@/components/AppShell";
 import { requireUser } from "@/lib/auth";
 import { listCustomersForUser } from "@/lib/db";
 import QuotationBuilder from "@/components/QuotationBuilder";
@@ -7,18 +9,20 @@ export const metadata = {
 };
 
 export default async function NewQuotationPage() {
-  const user = await requireUser();
+  const user = await requireUser().catch(() => redirect("/login"));
   const customers = await listCustomersForUser(user.id);
 
   if (!customers.length) {
-    return (
-      <div className="rounded-xl border border-slate-200/80 bg-white p-6 text-center">
-        <p className="text-slate-600">
-          Please add a customer first before creating a quotation.
-        </p>
-      </div>
-    );
+    redirect("/customers");
   }
 
-  return <QuotationBuilder customers={customers} user={user} />;
+  return (
+    <AppShell
+      description="Build a quotation with the same item table, totals, tax splits, and customer details as invoices."
+      title="Create quotation"
+      user={user}
+    >
+      <QuotationBuilder customers={customers} user={user} />
+    </AppShell>
+  );
 }

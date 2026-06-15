@@ -1,171 +1,233 @@
-import { requireUser } from "@/lib/auth";
-import { findQuotationForUser } from "@/lib/db";
-import { formatCurrency } from "@/lib/billing";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import AppShell from "@/components/AppShell";
+import { requireUser } from "@/lib/auth";
+import { formatCurrency, formatRupeesInWords } from "@/lib/billing";
+import { findQuotationForUser } from "@/lib/db";
 
 export const metadata = {
   title: "Quotation Details"
 };
 
 export default async function QuotationPage({ params }) {
+  const user = await requireUser().catch(() => redirect("/login"));
   const { quotationId } = await params;
-  const user = await requireUser();
   const quotation = await findQuotationForUser(user.id, quotationId);
 
   if (!quotation) {
-    return (
-      <div className="rounded-xl border border-slate-200/80 bg-white p-6 text-center">
-        <p className="text-slate-600">Quotation not found.</p>
-      </div>
-    );
+    redirect("/quotations");
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Draft":
-        return "bg-slate-100 text-slate-900";
-      case "Sent":
-        return "bg-blue-100 text-blue-900";
-      case "Accepted":
-        return "bg-green-100 text-green-900";
-      case "Rejected":
-        return "bg-rose-100 text-rose-900";
-      case "Expired":
-        return "bg-yellow-100 text-yellow-900";
-      default:
-        return "bg-slate-100 text-slate-900";
-    }
+  const companyDetails = {
+    ...quotation.companyDetails,
+    accountNumber: quotation.companyDetails.accountNumber || user.accountNumber || "",
+    ifscCode: quotation.companyDetails.ifscCode || user.ifscCode || "",
+    bankName: quotation.companyDetails.bankName || user.bankName || "",
+    branch: quotation.companyDetails.branch || user.branch || "",
+    signatureImage: quotation.companyDetails.signatureImage || user.signatureImage || ""
   };
+  const quoteSubject = quotation.description || quotation.projectName || "Work";
+  const isWithoutGst = quotation.taxMode === "none";
+  const shareText = encodeURIComponent(
+    `Quotation ${quotation.quotationNumber} for ${quotation.customerDetails.clientName} - ${formatCurrency(quotation.totals.grandTotal)}`
+  );
 
   return (
-    <div className="space-y-5">
-      <div className="glass-card flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 lg:p-8">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-slate-950">{quotation.quotationNumber}</h1>
-          <p className="mt-1 text-sm text-slate-600">{quotation.projectName}</p>
-        </div>
-        <div className="flex gap-3">
-          <span className={`inline-flex rounded-lg px-3 py-1.5 text-sm font-semibold ${getStatusColor(quotation.status)}`}>
-            {quotation.status}
-          </span>
-          <Link href={`/quotations/${quotationId}/edit`} className="button-secondary">
-            Edit
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-5">
-          {/* Company & Customer Details */}
-          <div className="glass-card grid gap-6 p-4 sm:grid-cols-2 sm:p-6 lg:p-8">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700">From</h3>
-              <p className="mt-3 text-sm font-semibold text-slate-950">{quotation.companyDetails.companyName}</p>
-              <p className="mt-1 text-sm text-slate-600">{quotation.companyDetails.address}</p>
-              <p className="mt-1 text-sm text-slate-600">{quotation.companyDetails.phone}</p>
-              <p className="mt-1 text-sm text-slate-600">{quotation.companyDetails.email}</p>
-              {quotation.companyDetails.gstin && (
-                <p className="mt-1 text-sm text-slate-600">GSTIN: {quotation.companyDetails.gstin}</p>
-              )}
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700">To</h3>
-              <p className="mt-3 text-sm font-semibold text-slate-950">{quotation.customerDetails.clientName}</p>
-              <p className="mt-1 text-sm text-slate-600">{quotation.customerDetails.address}</p>
-              <p className="mt-1 text-sm text-slate-600">{quotation.customerDetails.mobile}</p>
-              {quotation.customerDetails.gstNumber && (
-                <p className="mt-1 text-sm text-slate-600">GSTIN: {quotation.customerDetails.gstNumber}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Quotation Dates */}
-          <div className="glass-card grid gap-4 p-4 sm:grid-cols-3 sm:p-6 lg:p-8">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700">Quotation Date</h3>
-              <p className="mt-2 text-sm text-slate-950">{quotation.quotationDate}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700">Valid Until</h3>
-              <p className="mt-2 text-sm text-slate-950">{quotation.validityDate}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700">Validity Period</h3>
-              <p className="mt-2 text-sm text-slate-950">{quotation.validityPeriod}</p>
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <div className="glass-card overflow-x-auto p-4 sm:p-6 lg:p-8">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200/80">
-                  <th className="px-4 py-3 text-left font-semibold text-slate-700">Description</th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">Qty</th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">Rate</th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">GST %</th>
-                  <th className="px-4 py-3 text-right font-semibold text-slate-700">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotation.items.map((item) => (
-                  <tr className="border-b border-slate-200/80" key={item.id}>
-                    <td className="px-4 py-3">{item.description}</td>
-                    <td className="px-4 py-3 text-right">{item.quantity} {item.unit}</td>
-                    <td className="px-4 py-3 text-right">{formatCurrency(item.rate)}</td>
-                    <td className="px-4 py-3 text-right">{item.gstPercentage}%</td>
-                    <td className="px-4 py-3 text-right font-semibold">{formatCurrency(item.amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Notes and Terms */}
-          {(quotation.notes || quotation.terms) && (
-            <div className="glass-card space-y-4 p-4 sm:p-6 lg:p-8">
-              {quotation.notes && (
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700">Notes</h3>
-                  <p className="mt-2 text-sm text-slate-600 whitespace-pre-wrap">{quotation.notes}</p>
-                </div>
-              )}
-              {quotation.terms && (
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-700">Terms & Conditions</h3>
-                  <p className="mt-2 text-sm text-slate-600 whitespace-pre-wrap">{quotation.terms}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Summary Sidebar */}
-        <div className="glass-card p-4 sm:p-6 lg:p-8 h-fit">
-          <h3 className="text-sm font-semibold text-slate-700">Summary</h3>
-          <div className="mt-6 space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-slate-600">Subtotal</span>
-              <span className="text-sm font-semibold text-slate-950">{formatCurrency(quotation.totals.subtotal)}</span>
-            </div>
-            {quotation.taxMode !== "none" && (
-              <div className="flex justify-between">
-                <span className="text-sm text-slate-600">
-                  {quotation.taxMode === "inter" ? "IGST" : "GST"}
-                </span>
-                <span className="text-sm font-semibold text-slate-950">{formatCurrency(quotation.totals.gstTotal)}</span>
+    <AppShell
+      actions={
+        <>
+          <a
+            className="button-secondary"
+            href={`mailto:${user.email}?subject=${quotation.quotationNumber}&body=${shareText}`}
+          >
+            Email
+          </a>
+          <a
+            className="button-secondary"
+            href={`https://wa.me/?text=${shareText}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            WhatsApp
+          </a>
+        </>
+      }
+      description="Review the quotation in the same bill format used for invoices."
+      title={`Quotation ${quotation.quotationNumber}`}
+      user={user}
+    >
+      <section className="glass-card mobile-scrollbar overflow-x-auto p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
+        <div className="invoice-sheet mx-auto bg-white p-4 text-slate-950 shadow-sm ring-1 ring-slate-200 sm:p-6 print:p-0 print:shadow-none print:ring-0">
+          <article className="flex min-h-[277mm] flex-col border-2 border-slate-900 p-4 font-sans text-[12px] leading-5 sm:p-5 print:min-h-[277mm]">
+            <header className="border-b-2 border-slate-700 pb-2">
+              <div className="flex flex-wrap justify-between gap-2 text-sm font-medium text-slate-700">
+                <span className="break-words">GSTIN : {companyDetails.gstin || "-"}</span>
+                <span className="break-words">Mob : {companyDetails.phone || "-"}</span>
               </div>
-            )}
-            <div className="border-t border-slate-200/80 pt-3 flex justify-between">
-              <span className="text-sm font-semibold text-slate-950">Total</span>
-              <span className="text-lg font-bold text-slate-950">{formatCurrency(quotation.totals.grandTotal)}</span>
-            </div>
-          </div>
+              <h2 className="mt-2 text-center text-3xl font-bold uppercase text-red-700 sm:text-4xl">
+                {companyDetails.companyName}
+              </h2>
+              <p className="mt-1 text-center text-xs font-medium sm:text-sm">
+                {companyDetails.address || "-"}
+              </p>
+            </header>
 
-          <button className="button-primary w-full mt-6">Download PDF</button>
-          <button className="button-secondary w-full mt-2">Share</button>
+            <div className="mt-5 grid grid-cols-[1fr_auto_1fr] gap-4">
+              <div className="font-medium">
+                <p>To,</p>
+                <p className="mt-5">{quotation.customerDetails.clientName}</p>
+                <p>{quotation.customerDetails.address}</p>
+                <p>GSTN : {quotation.customerDetails.gstNumber || "-"}</p>
+              </div>
+              <p className="self-start text-center font-semibold">
+                <span className="premium-underline">
+                  Quotation No: {quotation.quotationNumber}
+                </span>
+              </p>
+              <div className="text-right font-semibold">
+                <p>Date : {quotation.quotationDate}</p>
+                <p>Valid Until : {quotation.validityDate}</p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-lg font-semibold">Site : {quotation.projectName}</p>
+            <div className="mt-4 text-center text-base font-semibold">
+              <span className="premium-underline">Sub : Quotation for {quoteSubject}</span>
+            </div>
+
+            <div className="mt-4">
+              <table className="invoice-table w-full border-collapse border border-slate-800 text-left text-[10px]">
+                <colgroup>
+                  <col className="w-[5%]" />
+                  <col className="w-[49%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[18%]" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th className="border border-slate-800 px-1 py-1 align-top">Sl</th>
+                    <th className="border border-slate-800 px-2 py-1 align-top">Description</th>
+                    <th className="border border-slate-800 px-1 py-1 text-center align-top">Unit</th>
+                    <th className="border border-slate-800 px-1 py-1 text-center align-top">Qty</th>
+                    <th className="border border-slate-800 px-1 py-1 text-right align-top">Rate</th>
+                    <th className="border border-slate-800 px-1 py-1 text-right align-top">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {quotation.items.map((item, index) => (
+                    <tr key={item.id || item.description}>
+                      <td className="invoice-num border border-slate-800 px-1 py-1 align-top">
+                        {String(index + 1).padStart(2, "0")}.
+                      </td>
+                      <td className="border border-slate-800 px-2 py-1 align-top">
+                        {item.description}
+                      </td>
+                      <td className="border border-slate-800 px-1 py-1 text-center align-top">
+                        {item.unit}
+                      </td>
+                      <td className="invoice-num border border-slate-800 px-1 py-1 text-center align-top">
+                        {item.quantity}
+                      </td>
+                      <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
+                        {Number(item.rate).toFixed(2)}
+                      </td>
+                      <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
+                        {Number(item.amount).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="border border-slate-800 px-1 py-1" />
+                    <td className="border border-slate-800 px-2 py-1" colSpan={4}>
+                      <span className="float-right font-semibold">Total</span>
+                    </td>
+                    <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
+                      {Number(quotation.totals.subtotal).toFixed(2)}
+                    </td>
+                  </tr>
+                  {!isWithoutGst && quotation.totals.igstTotal > 0 ? (
+                    <tr>
+                      <td className="border border-slate-800 px-1 py-1" />
+                      <td className="border border-slate-800 px-2 py-1" colSpan={4}>
+                        <span className="float-right font-semibold">IGST</span>
+                      </td>
+                      <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
+                        {Number(quotation.totals.igstTotal).toFixed(2)}
+                      </td>
+                    </tr>
+                  ) : null}
+                  {!isWithoutGst && quotation.totals.igstTotal <= 0 ? (
+                    <>
+                      <tr>
+                        <td className="border border-slate-800 px-1 py-1" />
+                        <td className="border border-slate-800 px-2 py-1" colSpan={4}>
+                          <span className="float-right font-semibold">CGST</span>
+                        </td>
+                        <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
+                          {Number(quotation.totals.cgstTotal).toFixed(2)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="border border-slate-800 px-1 py-1" />
+                        <td className="border border-slate-800 px-2 py-1" colSpan={4}>
+                          <span className="float-right font-semibold">SGST</span>
+                        </td>
+                        <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
+                          {Number(quotation.totals.sgstTotal).toFixed(2)}
+                        </td>
+                      </tr>
+                    </>
+                  ) : null}
+                  <tr>
+                    <td className="border border-slate-800 px-1 py-1" />
+                    <td className="border border-slate-800 px-2 py-1" colSpan={4}>
+                      <span className="float-right font-semibold">Grand Total</span>
+                    </td>
+                    <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
+                      {Number(quotation.totals.grandTotal).toFixed(2)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-5 text-sm font-semibold sm:text-base">
+              ({formatRupeesInWords(quotation.totals.grandTotal)})
+            </p>
+
+            <div className="mt-4 font-medium">
+              {quotation.notes ? <p>Notes : {quotation.notes}</p> : null}
+              {quotation.terms ? <p>Terms : {quotation.terms}</p> : null}
+              {quotation.validityPeriod ? <p>Validity : {quotation.validityPeriod}</p> : null}
+            </div>
+
+            <div className="mt-auto grid grid-cols-[1fr_14rem] items-end gap-8 pt-10 font-medium">
+              <p className="pb-2">Thanking You</p>
+              <div className="justify-self-end text-center">
+                <p className="mb-2 max-w-56 break-words">For {companyDetails.companyName}</p>
+                <div className="flex h-14 w-56 items-center justify-center overflow-hidden">
+                  {companyDetails.signatureImage ? (
+                    <img
+                      alt="Authorized signature"
+                      className="max-h-14 max-w-44 object-contain"
+                      src={companyDetails.signatureImage}
+                    />
+                  ) : null}
+                </div>
+                <p className="mt-1 font-semibold">Proprietor</p>
+              </div>
+            </div>
+
+            <div className="mt-8 print:hidden">
+              <Link className="text-sm font-semibold text-[var(--brand)]" href="/quotations">
+                Back to quotation history
+              </Link>
+            </div>
+          </article>
         </div>
-      </div>
-    </div>
+      </section>
+    </AppShell>
   );
 }
