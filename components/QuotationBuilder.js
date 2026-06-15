@@ -11,6 +11,7 @@ function createEmptyItem() {
     unit: "Sqft",
     quantity: 1,
     rate: "0",
+    amount: "",
     gstPercentage: 18
   };
 }
@@ -21,6 +22,14 @@ function FieldLabel({ label, children, className = "" }) {
       <span>{label}</span>
       {children}
     </label>
+  );
+}
+
+function hasQuotationItemValue(item) {
+  return Boolean(
+    item.description?.trim() ||
+      String(item.amount ?? "").trim() ||
+      String(item.rate ?? "").trim()
   );
 }
 
@@ -52,9 +61,16 @@ export default function QuotationBuilder({ customers, user }) {
     [customers, form.customerId]
   );
 
-  const preview = useMemo(() => calculateInvoice(items, form.taxMode), [form.taxMode, items]);
+  const preview = useMemo(
+    () =>
+      calculateInvoice(items, form.taxMode, {
+        includeAmountOnlyItems: true,
+        useDirectAmount: true
+      }),
+    [form.taxMode, items]
+  );
   const previewSourceItems = useMemo(
-    () => items.filter((item) => item.description?.trim()),
+    () => items.filter(hasQuotationItemValue),
     [items]
   );
   const isWithoutGst = form.taxMode === "none";
@@ -211,7 +227,7 @@ export default function QuotationBuilder({ customers, user }) {
         <div className="mt-8 space-y-4">
           {items.map((item, index) => (
             <div className="rounded-xl border border-slate-200/80 bg-white/85 p-4" key={index}>
-              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-[2fr_0.7fr_0.7fr_0.9fr_0.8fr_auto]">
+              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-[2fr_0.65fr_0.65fr_0.85fr_0.9fr_0.75fr_auto]">
                 <FieldLabel label="Description">
                   <input
                     className="field"
@@ -245,6 +261,15 @@ export default function QuotationBuilder({ customers, user }) {
                     placeholder="Rate or text"
                     type="text"
                     value={item.rate}
+                  />
+                </FieldLabel>
+                <FieldLabel label="Amount">
+                  <input
+                    className="field"
+                    onChange={(event) => updateItem(index, "amount", event.target.value)}
+                    placeholder="Amount"
+                    type="text"
+                    value={item.amount}
                   />
                 </FieldLabel>
                 <FieldLabel label="GST %">

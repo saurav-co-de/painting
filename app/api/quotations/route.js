@@ -4,6 +4,14 @@ import { requireUser } from "@/lib/auth";
 import { calculateInvoice, createInvoiceNumber } from "@/lib/billing";
 import { createQuotationRecord, listCustomersForUser, listQuotationsForUser } from "@/lib/db";
 
+function hasQuotationItemValue(item) {
+  return Boolean(
+    item.description?.trim() ||
+      String(item.amount ?? "").trim() ||
+      String(item.rate ?? "").trim()
+  );
+}
+
 export async function GET() {
   try {
     const user = await requireUser();
@@ -33,12 +41,16 @@ export async function POST(request) {
     }
 
     const quotedSourceItems = Array.isArray(payload.items)
-      ? payload.items.filter((item) => item.description?.trim())
+      ? payload.items.filter(hasQuotationItemValue)
       : [];
-    const quotationMath = calculateInvoice(payload.items, payload.taxMode);
+    const quotationMath = calculateInvoice(payload.items, payload.taxMode, {
+      includeAmountOnlyItems: true,
+      useDirectAmount: true
+    });
     const quotationItems = quotationMath.items.map((item, index) => ({
       ...item,
-      rate: String(quotedSourceItems[index]?.rate ?? item.rate ?? "")
+      rate: String(quotedSourceItems[index]?.rate ?? item.rate ?? ""),
+      amount: item.amount
     }));
 
     if (!quotationMath.items.length) {
