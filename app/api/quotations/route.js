@@ -68,10 +68,6 @@ export async function POST(request) {
         phone: user.phone,
         email: user.email,
         logoText: user.logoText,
-        accountNumber: user.accountNumber || "",
-        ifscCode: user.ifscCode || "",
-        bankName: user.bankName || "",
-        branch: user.branch || "",
         signatureImage: user.signatureImage || ""
       },
       customerDetails: {

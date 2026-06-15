@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function QuotationPage({ params }) {
-  const { quotationId } = params;
+  const { quotationId } = await params;
   const user = await requireUser();
   const quotation = await findQuotationForUser(user.id, quotationId);
 
