@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { readJsonResponse } from "@/lib/api";
 import { formatCurrency } from "@/lib/billing";
 
 export default function InvoicesTable({ initialInvoices }) {
@@ -42,7 +43,7 @@ export default function InvoicesTable({ initialInvoices }) {
         },
         body: JSON.stringify({ paymentStatus })
       });
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Could not update invoice.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not update invoice.");

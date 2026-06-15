@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { readJsonResponse } from "@/lib/api";
 
 export default function AuthForm({ mode }) {
   const isSignup = mode === "signup";
@@ -42,7 +43,7 @@ export default function AuthForm({ mode }) {
         },
         body: JSON.stringify(authForm)
       });
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Unable to continue.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Unable to continue.");
@@ -96,7 +97,7 @@ export default function AuthForm({ mode }) {
         },
         body: JSON.stringify({ email: form.email })
       });
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Could not start password reset.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not start password reset.");

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { readJsonResponse } from "@/lib/api";
 
 export default function ResetPasswordForm({ token }) {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function ResetPasswordForm({ token }) {
         },
         body: JSON.stringify({ token, password })
       });
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Could not reset password.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not reset password.");

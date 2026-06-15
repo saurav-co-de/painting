@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { readJsonResponse } from "@/lib/api";
 import { calculateInvoice, formatCurrency } from "@/lib/billing";
 
 function createEmptyItem() {
@@ -26,6 +27,7 @@ function FieldLabel({ label, children, className = "" }) {
 export default function InvoiceBuilder({ customers, user }) {
   const router = useRouter();
   const [form, setForm] = useState({
+    invoiceNumber: "",
     invoiceDate: new Date().toISOString().slice(0, 10),
     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     projectName: "",
@@ -90,7 +92,7 @@ export default function InvoiceBuilder({ customers, user }) {
           items
         })
       });
-      const payload = await response.json();
+      const payload = await readJsonResponse(response, "Unable to create invoice.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Unable to create invoice.");
@@ -109,6 +111,14 @@ export default function InvoiceBuilder({ customers, user }) {
     <form className="grid gap-4 2xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)] 2xl:gap-5" onSubmit={handleSubmit}>
       <section className="glass-card min-w-0 p-4 sm:p-6 lg:p-8">
         <div className="grid gap-4 md:grid-cols-2">
+          <FieldLabel label="Invoice number">
+            <input
+              className="field"
+              onChange={(event) => updateForm("invoiceNumber", event.target.value)}
+              placeholder="Auto-generated if blank"
+              value={form.invoiceNumber}
+            />
+          </FieldLabel>
           <FieldLabel label="Project or site name">
             <input
               className="field"

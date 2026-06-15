@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { readJsonResponse } from "@/lib/api";
 
 const emptyForm = {
   id: "",
@@ -49,7 +50,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
       },
       body: JSON.stringify(form)
     });
-    const payload = await response.json();
+    const payload = await readJsonResponse(response, "Could not save customer.");
 
     if (!response.ok) {
       setStatus(payload.error || "Could not save customer.");
@@ -76,7 +77,7 @@ export default function CustomersManager({ initialCustomers, invoiceCounts }) {
     const response = await fetch(`/api/customers/${customerId}`, {
       method: "DELETE"
     });
-    const payload = await response.json();
+    const payload = await readJsonResponse(response, "Could not delete customer.");
 
     if (!response.ok) {
       setStatus(payload.error || "Could not delete customer.");

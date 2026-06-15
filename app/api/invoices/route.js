@@ -43,10 +43,25 @@ export async function POST(request) {
       return NextResponse.json({ error: "Add at least one invoice line item." }, { status: 400 });
     }
 
+    const manualInvoiceNumber = String(payload.invoiceNumber || "").trim();
+
+    if (
+      manualInvoiceNumber &&
+      existingInvoices.some(
+        (invoice) =>
+          String(invoice.invoiceNumber || "").toLowerCase() === manualInvoiceNumber.toLowerCase()
+      )
+    ) {
+      return NextResponse.json(
+        { error: "This invoice number is already in use." },
+        { status: 400 }
+      );
+    }
+
     const invoice = {
       id: randomUUID(),
       userId: user.id,
-      invoiceNumber: createInvoiceNumber(existingInvoices),
+      invoiceNumber: manualInvoiceNumber || createInvoiceNumber(existingInvoices),
       invoiceDate: payload.invoiceDate,
       dueDate: payload.dueDate,
       projectName: payload.projectName,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { readJsonResponse } from "@/lib/api";
 
 function FieldControl({ id, label, children, className = "" }) {
   return (
@@ -55,7 +56,7 @@ export default function SettingsForm({ user }) {
       },
       body: JSON.stringify(form)
     });
-    const payload = await response.json();
+    const payload = await readJsonResponse(response, "Save failed.");
 
     setStatus(response.ok ? "Business settings saved." : payload.error || "Save failed.");
   }
