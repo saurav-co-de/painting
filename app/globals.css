@@ -55,7 +55,6 @@ body::before {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
