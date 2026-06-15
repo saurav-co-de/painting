@@ -5,7 +5,7 @@ import { deleteQuotation, findQuotationForUser, updateQuotationStatus } from "@/
 export async function GET(request, { params }) {
   try {
     const user = await requireUser();
-    const { quotationId } = params;
+    const { quotationId } = await params;
     const quotation = await findQuotationForUser(user.id, quotationId);
 
     if (!quotation) {
@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const user = await requireUser();
-    const { quotationId } = params;
+    const { quotationId } = await params;
     const payload = await request.json();
     const quotation = await updateQuotationStatus(user.id, quotationId, payload.status);
 
@@ -38,7 +38,7 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const user = await requireUser();
-    const { quotationId } = params;
+    const { quotationId } = await params;
     const deleted = await deleteQuotation(user.id, quotationId);
 
     if (!deleted) {

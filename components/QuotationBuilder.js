@@ -10,7 +10,7 @@ function createEmptyItem() {
     description: "",
     unit: "Sqft",
     quantity: 1,
-    rate: 0,
+    rate: "0",
     gstPercentage: 18
   };
 }
@@ -53,6 +53,10 @@ export default function QuotationBuilder({ customers, user }) {
   );
 
   const preview = useMemo(() => calculateInvoice(items, form.taxMode), [form.taxMode, items]);
+  const previewSourceItems = useMemo(
+    () => items.filter((item) => item.description?.trim()),
+    [items]
+  );
   const isWithoutGst = form.taxMode === "none";
 
   function updateForm(key, value) {
@@ -237,10 +241,9 @@ export default function QuotationBuilder({ customers, user }) {
                 <FieldLabel label="Rate">
                   <input
                     className="field"
-                    min="0"
                     onChange={(event) => updateItem(index, "rate", event.target.value)}
-                    placeholder="Rate"
-                    type="number"
+                    placeholder="Rate or text"
+                    type="text"
                     value={item.rate}
                   />
                 </FieldLabel>
@@ -318,17 +321,21 @@ export default function QuotationBuilder({ customers, user }) {
         </div>
 
         <div className="mt-6 space-y-3">
-          {preview.items.map((item) => (
+          {preview.items.map((item, index) => {
+            const displayRate = previewSourceItems[index]?.rate ?? item.rate;
+
+            return (
             <div className="flex items-center justify-between gap-3 rounded-xl bg-white/85 px-4 py-3" key={item.id}>
               <div className="min-w-0">
                 <p className="break-words text-sm font-medium text-slate-950">{item.description || "Untitled item"}</p>
                 <p className="break-words text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.14em]">
-                  {item.quantity} {item.unit} x {formatCurrency(item.rate)}
+                  {item.quantity} {item.unit} x {displayRate || "-"}
                 </p>
               </div>
               <p className="shrink-0 text-right text-sm font-semibold text-slate-950">{formatCurrency(item.amount)}</p>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-6 rounded-xl bg-slate-950 p-5 text-white">

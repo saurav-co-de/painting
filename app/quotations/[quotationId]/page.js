@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import QuotationActions from "@/components/QuotationActions";
 import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatRupeesInWords } from "@/lib/billing";
 import { findQuotationForUser } from "@/lib/db";
@@ -38,6 +39,7 @@ export default async function QuotationPage({ params }) {
     <AppShell
       actions={
         <>
+          <QuotationActions quotationId={quotation.id} quotationNumber={quotation.quotationNumber} />
           <a
             className="button-secondary"
             href={`mailto:${user.email}?subject=${quotation.quotationNumber}&body=${shareText}`}
@@ -133,7 +135,7 @@ export default async function QuotationPage({ params }) {
                         {item.quantity}
                       </td>
                       <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
-                        {Number(item.rate).toFixed(2)}
+                        {String(item.rate || "-")}
                       </td>
                       <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
                         {Number(item.amount).toFixed(2)}

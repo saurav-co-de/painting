@@ -32,7 +32,14 @@ export async function POST(request) {
       return NextResponse.json({ error: "Choose a valid customer first." }, { status: 400 });
     }
 
+    const quotedSourceItems = Array.isArray(payload.items)
+      ? payload.items.filter((item) => item.description?.trim())
+      : [];
     const quotationMath = calculateInvoice(payload.items, payload.taxMode);
+    const quotationItems = quotationMath.items.map((item, index) => ({
+      ...item,
+      rate: String(quotedSourceItems[index]?.rate ?? item.rate ?? "")
+    }));
 
     if (!quotationMath.items.length) {
       return NextResponse.json({ error: "Add at least one quotation line item." }, { status: 400 });
@@ -78,7 +85,7 @@ export async function POST(request) {
         address: customer?.address || "",
         mobile: customer?.mobile || ""
       },
-      items: quotationMath.items,
+      items: quotationItems,
       totals: quotationMath.totals,
       status: payload.status || "Draft",
       validityPeriod: payload.validityPeriod || "30 days",
