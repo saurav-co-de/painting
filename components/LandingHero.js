@@ -17,15 +17,15 @@ export default function LandingHero() {
   return (
     <>
       <PublicNav />
-      <main className="relative overflow-hidden px-3 py-4 sm:px-6 xl:px-8">
+      <main className="relative min-w-0 overflow-hidden px-2 py-3 sm:px-6 sm:py-4 xl:px-8">
         <div className="mx-auto w-full max-w-[1800px] space-y-6">
-          <section className="hero-card min-h-[calc(100vh-7rem)] p-5 sm:p-10 lg:p-14">
-            <div className="grid min-h-[calc(100vh-14rem)] gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-              <div>
-                <span className="inline-flex rounded-xl border border-white/30 bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/90 sm:tracking-[0.22em]">
+          <section className="hero-card min-h-[calc(100svh-6rem)] p-4 sm:p-8 lg:p-12">
+            <div className="grid min-h-[calc(100svh-12rem)] gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
+              <div className="min-w-0">
+                <span className="inline-flex max-w-full rounded-lg border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/90 sm:px-4 sm:tracking-[0.18em]">
                   SaaS Billing Platform
                 </span>
-                <h1 className="font-display mt-6 max-w-5xl text-4xl leading-[1.04] text-white sm:text-6xl xl:text-7xl">
+                <h1 className="font-display mt-6 max-w-5xl text-4xl leading-[1.04] text-white sm:text-5xl xl:text-6xl">
                   BuildBill AI helps Indian businesses bill like pros.
                 </h1>
                 <p className="mt-6 max-w-3xl text-base leading-8 text-white/85 sm:text-lg">
@@ -49,8 +49,8 @@ export default function LandingHero() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-xl sm:p-6">
-                <div className="rounded-xl bg-white p-4 text-slate-950 shadow-2xl shadow-slate-950/20 sm:p-6">
+              <div className="min-w-0 rounded-lg border border-white/20 bg-white/10 p-3 backdrop-blur-xl sm:p-6">
+                <div className="rounded-lg bg-white p-4 text-slate-950 shadow-2xl shadow-slate-950/20 sm:p-6">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.24em]">
@@ -58,7 +58,7 @@ export default function LandingHero() {
                       </p>
                       <h2 className="font-display mt-2 break-words text-2xl">BB-2026-014</h2>
                     </div>
-                    <span className="shrink-0 rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-900 sm:tracking-[0.18em]">
+                    <span className="shrink-0 rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-900 sm:tracking-[0.14em]">
                       Paid
                     </span>
                   </div>
@@ -78,10 +78,10 @@ export default function LandingHero() {
                     </div>
                   </div>
 
-                  <div className="mt-6 rounded-xl bg-[var(--surface)] p-4">
-                    <div className="flex items-center justify-between gap-3">
+                  <div className="mt-6 rounded-lg bg-[var(--surface)] p-4">
+                    <div className="flex flex-col gap-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
                       <p className="text-sm font-semibold">Modular kitchen installation</p>
-                      <p className="shrink-0 text-sm font-semibold">Rs 82,600</p>
+                      <p className="text-sm font-semibold min-[420px]:shrink-0">Rs 82,600</p>
                     </div>
                     <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
                       <span>CGST + SGST</span>
@@ -93,7 +93,7 @@ export default function LandingHero() {
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="glass-card p-5 sm:p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
                 Why teams choose it

@@ -26,13 +26,15 @@ function FieldLabel({ label, children, className = "" }) {
 
 export default function InvoiceBuilder({ customers, user }) {
   const router = useRouter();
+  const initialCustomer = customers[0] || null;
   const [form, setForm] = useState({
     invoiceNumber: "",
     invoiceDate: new Date().toISOString().slice(0, 10),
     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     projectName: "",
     billSubject: "",
-    customerId: customers[0]?.id || "",
+    customerId: initialCustomer?.id || "",
+    customerName: initialCustomer?.customerName || "",
     taxMode: "intra",
     advancePayment: "",
     notes: "Thank you for your business.",
@@ -58,6 +60,20 @@ export default function InvoiceBuilder({ customers, user }) {
 
   function updateForm(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateCustomer(value) {
+    const matchedCustomer =
+      customers.find((customer) => customer.customerName === value) ||
+      customers.find(
+        (customer) => customer.customerName.toLowerCase() === value.trim().toLowerCase()
+      );
+
+    setForm((current) => ({
+      ...current,
+      customerId: matchedCustomer?.id || "",
+      customerName: value
+    }));
   }
 
   function updateItem(index, key, value) {
@@ -137,17 +153,19 @@ export default function InvoiceBuilder({ customers, user }) {
             />
           </FieldLabel>
           <FieldLabel label="Customer">
-            <select
+            <input
+              autoComplete="off"
               className="field"
-              onChange={(event) => updateForm("customerId", event.target.value)}
-              value={form.customerId}
-            >
+              list="invoice-customers"
+              onChange={(event) => updateCustomer(event.target.value)}
+              placeholder="Search or type customer name"
+              value={form.customerName}
+            />
+            <datalist id="invoice-customers">
               {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.customerName}
-                </option>
+                <option key={customer.id} value={customer.customerName} />
               ))}
-            </select>
+            </datalist>
           </FieldLabel>
           <FieldLabel label="Invoice date">
             <input
@@ -206,7 +224,7 @@ export default function InvoiceBuilder({ customers, user }) {
 
         <div className="mt-8 space-y-4">
           {items.map((item, index) => (
-            <div className="rounded-xl border border-slate-200/80 bg-white/85 p-4" key={index}>
+            <div className="rounded-lg border border-slate-200/80 bg-white/85 p-4" key={index}>
               <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-[2fr_0.7fr_0.7fr_0.9fr_0.8fr_auto]">
                 <FieldLabel label="Description">
                   <input
@@ -256,7 +274,7 @@ export default function InvoiceBuilder({ customers, user }) {
                   />
                 </FieldLabel>
                 <button
-                  className="inline-flex min-h-11 items-center justify-center self-end rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100"
+                  className="inline-flex min-h-11 items-center justify-center self-end rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100"
                   onClick={() => removeItem(index)}
                   type="button"
                 >
@@ -308,9 +326,9 @@ export default function InvoiceBuilder({ customers, user }) {
           {user.address || "Add your business address in settings."}
         </p>
 
-        <div className="mt-6 rounded-xl border border-slate-200/80 bg-white/85 p-5">
+        <div className="mt-6 rounded-lg border border-slate-200/80 bg-white/85 p-5">
           <p className="text-sm font-semibold text-slate-950">
-            {selectedCustomer?.customerName || "Select a customer"}
+            {selectedCustomer?.customerName || form.customerName || "Select a customer"}
           </p>
           <p className="mt-2 text-sm leading-7 text-slate-500">
             {selectedCustomer?.address || "Customer address will appear here."}
@@ -319,19 +337,19 @@ export default function InvoiceBuilder({ customers, user }) {
 
         <div className="mt-6 space-y-3">
           {preview.items.map((item) => (
-            <div className="flex items-center justify-between gap-3 rounded-xl bg-white/85 px-4 py-3" key={item.id}>
+            <div className="flex flex-col gap-2 rounded-lg bg-white/85 px-4 py-3 min-[430px]:flex-row min-[430px]:items-center min-[430px]:justify-between" key={item.id}>
               <div className="min-w-0">
                 <p className="break-words text-sm font-medium text-slate-950">{item.description || "Untitled item"}</p>
                 <p className="break-words text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.14em]">
                   {item.quantity} {item.unit} x {formatCurrency(item.rate)}
                 </p>
               </div>
-              <p className="shrink-0 text-right text-sm font-semibold text-slate-950">{formatCurrency(item.amount)}</p>
+              <p className="break-words text-sm font-semibold text-slate-950 min-[430px]:shrink-0 min-[430px]:text-right">{formatCurrency(item.amount)}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-xl bg-slate-950 p-5 text-white">
+        <div className="mt-6 rounded-lg bg-slate-950 p-5 text-white">
           <div className="flex justify-between text-sm text-slate-300">
             <span>Subtotal</span>
             <span>{formatCurrency(preview.totals.subtotal)}</span>
@@ -343,7 +361,7 @@ export default function InvoiceBuilder({ customers, user }) {
             </div>
           ) : null}
           <div className="mt-4 border-t border-white/10 pt-4 text-lg font-semibold">
-            <div className="flex justify-between">
+            <div className="flex flex-col gap-1 min-[430px]:flex-row min-[430px]:justify-between">
               <span>Total</span>
               <span>{formatCurrency(preview.totals.grandTotal)}</span>
             </div>
@@ -355,7 +373,7 @@ export default function InvoiceBuilder({ customers, user }) {
                 <span>- {formatCurrency(advancePayment)}</span>
               </div>
               <div className="mt-3 border-t border-white/10 pt-4 text-lg font-semibold">
-                <div className="flex justify-between">
+                <div className="flex flex-col gap-1 min-[430px]:flex-row min-[430px]:justify-between">
                   <span>Balance due</span>
                   <span>{formatCurrency(balanceDue)}</span>
                 </div>

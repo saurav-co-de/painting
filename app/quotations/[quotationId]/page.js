@@ -4,7 +4,7 @@ import AppShell from "@/components/AppShell";
 import QuotationActions from "@/components/QuotationActions";
 import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatRupeesInWords } from "@/lib/billing";
-import { findQuotationForUser } from "@/lib/db";
+import { listQuotationsForUser } from "@/lib/db";
 
 export const metadata = {
   title: "Quotation Details"
@@ -13,7 +13,11 @@ export const metadata = {
 export default async function QuotationPage({ params }) {
   const user = await requireUser().catch(() => redirect("/login"));
   const { quotationId } = await params;
-  const quotation = await findQuotationForUser(user.id, quotationId);
+  const quotations = (await listQuotationsForUser(user.id)).sort(
+    (left, right) => new Date(right.createdAt) - new Date(left.createdAt)
+  );
+  const currentIndex = quotations.findIndex((entry) => entry.id === quotationId);
+  const quotation = quotations[currentIndex];
 
   if (!quotation) {
     redirect("/quotations");
@@ -34,6 +38,8 @@ export default async function QuotationPage({ params }) {
   const shareText = encodeURIComponent(
     `Quotation ${quotation.quotationNumber}${customerName ? ` for ${customerName}` : ""} - ${formatCurrency(quotation.totals.grandTotal)}`
   );
+  const previousQuotation = currentIndex > 0 ? quotations[currentIndex - 1] : null;
+  const nextQuotation = currentIndex < quotations.length - 1 ? quotations[currentIndex + 1] : null;
 
   return (
     <AppShell
@@ -60,7 +66,38 @@ export default async function QuotationPage({ params }) {
       title={`Quotation ${quotation.quotationNumber}`}
       user={user}
     >
-      <section className="glass-card mobile-scrollbar overflow-x-auto p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
+      <nav className="glass-card flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <Link className="button-secondary min-h-10 px-3 py-2 text-sm" href="/quotations">
+          Back to quotation history
+        </Link>
+        <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+          {previousQuotation ? (
+            <Link
+              className="button-secondary min-h-10 px-3 py-2 text-sm"
+              href={`/quotations/${previousQuotation.id}`}
+            >
+              Previous: {previousQuotation.quotationNumber}
+            </Link>
+          ) : (
+            <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
+              Previous quotation
+            </span>
+          )}
+          {nextQuotation ? (
+            <Link
+              className="button-secondary min-h-10 px-3 py-2 text-sm"
+              href={`/quotations/${nextQuotation.id}`}
+            >
+              Next: {nextQuotation.quotationNumber}
+            </Link>
+          ) : (
+            <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
+              Next quotation
+            </span>
+          )}
+        </div>
+      </nav>
+      <section className="glass-card mobile-scrollbar overflow-hidden p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
         <div className="invoice-sheet mx-auto bg-white p-4 text-slate-950 shadow-sm ring-1 ring-slate-200 sm:p-6 print:p-0 print:shadow-none print:ring-0">
           <article className="flex min-h-[277mm] flex-col border-2 border-slate-900 p-4 font-sans text-[12px] leading-5 sm:p-5 print:min-h-[277mm]">
             <header className="border-b-2 border-slate-700 pb-2">
@@ -76,7 +113,7 @@ export default async function QuotationPage({ params }) {
               </p>
             </header>
 
-            <div className="mt-5 grid grid-cols-[1fr_auto_1fr] gap-4">
+            <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               <div className="font-medium">
                 <p>To,</p>
                 {customerName ? <p className="mt-5">{customerName}</p> : null}
@@ -88,7 +125,7 @@ export default async function QuotationPage({ params }) {
                   Quotation No: {quotation.quotationNumber}
                 </span>
               </p>
-              <div className="text-right font-semibold">
+              <div className="font-semibold sm:text-right">
                 <p>Date : {quotation.quotationDate}</p>
                 <p>Valid Until : {quotation.validityDate}</p>
               </div>
@@ -207,11 +244,11 @@ export default async function QuotationPage({ params }) {
               {quotation.validityPeriod ? <p>Validity : {quotation.validityPeriod}</p> : null}
             </div>
 
-            <div className="mt-auto grid grid-cols-[1fr_14rem] items-end gap-8 pt-10 font-medium">
+            <div className="mt-auto grid gap-6 pt-10 font-medium sm:grid-cols-[minmax(0,1fr)_minmax(11rem,14rem)] sm:items-end sm:gap-8">
               <p className="pb-2">Thanking You</p>
-              <div className="justify-self-end text-center">
+              <div className="justify-self-start text-center sm:justify-self-end">
                 <p className="mb-2 max-w-56 break-words">For {companyDetails.companyName}</p>
-                <div className="flex h-14 w-56 items-center justify-center overflow-hidden">
+                <div className="flex h-14 w-full max-w-56 items-center justify-center overflow-hidden">
                   {companyDetails.signatureImage ? (
                     <img
                       alt="Authorized signature"

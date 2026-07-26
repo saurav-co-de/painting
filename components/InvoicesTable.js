@@ -12,6 +12,10 @@ export default function InvoicesTable({ initialInvoices }) {
   const [busyId, setBusyId] = useState("");
   const deferredQuery = useDeferredValue(query);
 
+  function invoiceClientName(invoice) {
+    return invoice.customerDetails?.clientName || "-";
+  }
+
   const filteredInvoices = useMemo(() => {
     const normalizedQuery = deferredQuery.trim().toLowerCase();
 
@@ -22,7 +26,7 @@ export default function InvoicesTable({ initialInvoices }) {
         [
           invoice.invoiceNumber,
           invoice.projectName,
-          invoice.customerDetails.clientName
+          invoiceClientName(invoice)
         ]
           .join(" ")
           .toLowerCase()
@@ -95,7 +99,7 @@ export default function InvoicesTable({ initialInvoices }) {
                 </Link>
                 <p className="mt-1 break-words text-sm text-slate-500">{invoice.projectName}</p>
                 <p className="mt-2 break-words text-sm text-slate-700">
-                  {invoice.customerDetails.clientName}
+                  {invoiceClientName(invoice)}
                 </p>
               </div>
               <span
@@ -169,7 +173,7 @@ export default function InvoicesTable({ initialInvoices }) {
                   <p className="mt-1 text-sm text-slate-500">{invoice.projectName}</p>
                 </td>
                 <td className="py-4 pr-4 text-sm text-slate-700">
-                  {invoice.customerDetails.clientName}
+                  {invoiceClientName(invoice)}
                 </td>
                 <td className="py-4 pr-4 text-sm text-slate-700">{invoice.dueDate}</td>
                 <td className="py-4 pr-4 text-sm font-semibold text-slate-950">

@@ -28,9 +28,11 @@ export async function POST(request) {
       listCustomersForUser(user.id),
       listInvoicesForUser(user.id)
     ]);
-    const customer = customers.find((entry) => entry.id === payload.customerId);
+    const customerId = String(payload.customerId || "").trim();
+    const customerName = String(payload.customerName || "").trim();
+    const customer = customerId ? customers.find((entry) => entry.id === customerId) : null;
 
-    if (!customer) {
+    if (customerId && !customer) {
       return NextResponse.json({ error: "Choose a valid customer first." }, { status: 400 });
     }
 
@@ -67,7 +69,7 @@ export async function POST(request) {
       projectName: payload.projectName,
       billSubject: payload.billSubject || payload.projectName || "Work",
       taxMode: payload.taxMode || "intra",
-      customerId: customer.id,
+      customerId: customer?.id || "",
       companyDetails: {
         companyName: user.businessName,
         gstin: user.gstin,
@@ -82,10 +84,10 @@ export async function POST(request) {
         signatureImage: user.signatureImage || ""
       },
       customerDetails: {
-        clientName: customer.customerName,
-        gstNumber: customer.gstNumber,
-        address: customer.address,
-        mobile: customer.mobile
+        clientName: customer?.customerName || customerName,
+        gstNumber: customer?.gstNumber || "",
+        address: customer?.address || "",
+        mobile: customer?.mobile || ""
       },
       items: invoiceMath.items,
       totals: invoiceMath.totals,

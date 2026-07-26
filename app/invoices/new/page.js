@@ -9,10 +9,6 @@ export default async function NewInvoicePage() {
   const database = await readDatabase();
   const customers = database.customers.filter((customer) => customer.userId === user.id);
 
-  if (!customers.length) {
-    redirect("/customers");
-  }
-
   return (
     <AppShell
       description="Build a GST invoice with automatic totals, Indian tax splits, and branded business details."

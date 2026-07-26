@@ -61,7 +61,7 @@ export default async function DashboardPage() {
                         {invoice.invoiceNumber}
                       </Link>
                       <p className="mt-1 break-words text-sm text-slate-500">
-                        {invoice.customerDetails.clientName} · {invoice.projectName}
+                        {invoice.customerDetails?.clientName || "-"} · {invoice.projectName}
                       </p>
                     </div>
                     <div className="sm:text-right">

@@ -3,15 +3,16 @@ import { redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatRupeesInWords } from "@/lib/billing";
-import { readDatabase } from "@/lib/db";
+import { listInvoicesForUser } from "@/lib/db";
 
 export default async function InvoiceDetailPage({ params }) {
   const user = await requireUser().catch(() => redirect("/login"));
   const { invoiceId } = await params;
-  const database = await readDatabase();
-  const invoice = database.invoices.find(
-    (entry) => entry.id === invoiceId && entry.userId === user.id
+  const invoices = (await listInvoicesForUser(user.id)).sort(
+    (left, right) => new Date(right.createdAt) - new Date(left.createdAt)
   );
+  const currentIndex = invoices.findIndex((entry) => entry.id === invoiceId);
+  const invoice = invoices[currentIndex];
 
   if (!invoice) {
     redirect("/invoices");
@@ -25,8 +26,10 @@ export default async function InvoiceDetailPage({ params }) {
     branch: invoice.companyDetails.branch || user.branch || "",
     signatureImage: invoice.companyDetails.signatureImage || user.signatureImage || ""
   };
+  const customerDetails = invoice.customerDetails || {};
+  const customerName = customerDetails.clientName || "-";
   const shareText = encodeURIComponent(
-    `Invoice ${invoice.invoiceNumber} for ${invoice.customerDetails.clientName} - ${formatCurrency(invoice.totals.grandTotal)}`
+    `Invoice ${invoice.invoiceNumber} for ${customerName} - ${formatCurrency(invoice.totals.grandTotal)}`
   );
   const billSubject = invoice.billSubject || invoice.projectName || "Work";
   const isWithoutGst = invoice.taxMode === "none";
@@ -35,6 +38,8 @@ export default async function InvoiceDetailPage({ params }) {
   const balanceDue =
     invoice.balanceDue ?? Math.round(Math.max(invoice.totals.grandTotal - advancePayment, 0) * 100) / 100;
   const payableAmount = advancePayment > 0 ? balanceDue : invoice.totals.grandTotal;
+  const previousInvoice = currentIndex > 0 ? invoices[currentIndex - 1] : null;
+  const nextInvoice = currentIndex < invoices.length - 1 ? invoices[currentIndex + 1] : null;
 
   return (
       <AppShell
@@ -59,7 +64,38 @@ export default async function InvoiceDetailPage({ params }) {
         title={`Invoice ${invoice.invoiceNumber}`}
         user={user}
       >
-        <section className="glass-card mobile-scrollbar overflow-x-auto p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
+        <nav className="glass-card flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
+          <Link className="button-secondary min-h-10 px-3 py-2 text-sm" href="/invoices">
+            Back to invoice history
+          </Link>
+          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+            {previousInvoice ? (
+              <Link
+                className="button-secondary min-h-10 px-3 py-2 text-sm"
+                href={`/invoices/${previousInvoice.id}`}
+              >
+                Previous: {previousInvoice.invoiceNumber}
+              </Link>
+            ) : (
+              <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
+                Previous invoice
+              </span>
+            )}
+            {nextInvoice ? (
+              <Link
+                className="button-secondary min-h-10 px-3 py-2 text-sm"
+                href={`/invoices/${nextInvoice.id}`}
+              >
+                Next: {nextInvoice.invoiceNumber}
+              </Link>
+            ) : (
+              <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
+                Next invoice
+              </span>
+            )}
+          </div>
+        </nav>
+        <section className="glass-card mobile-scrollbar overflow-hidden p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
           <div className="invoice-sheet mx-auto bg-white p-4 text-slate-950 shadow-sm ring-1 ring-slate-200 sm:p-6 print:p-0 print:shadow-none print:ring-0">
             <article className="flex min-h-[277mm] flex-col border-2 border-slate-900 p-4 font-sans text-[12px] leading-5 sm:p-5 print:min-h-[277mm]">
               <header className="border-b-2 border-slate-700 pb-2">
@@ -75,17 +111,17 @@ export default async function InvoiceDetailPage({ params }) {
                 </p>
               </header>
 
-              <div className="mt-5 grid grid-cols-[1fr_auto_1fr] gap-4">
+              <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
                 <div className="font-medium">
                   <p>To,</p>
-                  <p className="mt-5">{invoice.customerDetails.clientName}</p>
-                  <p>{invoice.customerDetails.address}</p>
-                  <p>GSTN : {invoice.customerDetails.gstNumber || "-"}</p>
+                  <p className="mt-5">{customerName}</p>
+                  <p>{customerDetails.address || "-"}</p>
+                  <p>GSTN : {customerDetails.gstNumber || "-"}</p>
                 </div>
                   <p className="self-start text-center font-semibold">
                   <span className="premium-underline">Tax Invoice No: {invoice.invoiceNumber}</span>
                 </p>
-                <p className="text-right font-semibold">Date : {invoice.invoiceDate}</p>
+                <p className="font-semibold sm:text-right">Date : {invoice.invoiceDate}</p>
               </div>
 
               <p className="mt-4 text-lg font-semibold">Site : {invoice.projectName}</p>
@@ -228,11 +264,11 @@ export default async function InvoiceDetailPage({ params }) {
                 <p>Branch : {companyDetails.branch || "-"}</p>
               </div>
 
-              <div className="mt-auto grid grid-cols-[1fr_14rem] items-end gap-8 pt-10 font-medium">
+              <div className="mt-auto grid gap-6 pt-10 font-medium sm:grid-cols-[minmax(0,1fr)_minmax(11rem,14rem)] sm:items-end sm:gap-8">
                 <p className="pb-2">Thanking You</p>
-                <div className="justify-self-end text-center">
+                <div className="justify-self-start text-center sm:justify-self-end">
                   <p className="mb-2 max-w-56 break-words">For {companyDetails.companyName}</p>
-                  <div className="flex h-14 w-56 items-center justify-center overflow-hidden">
+                  <div className="flex h-14 w-full max-w-56 items-center justify-center overflow-hidden">
                     {companyDetails.signatureImage ? (
                       <img
                         alt="Authorized signature"
