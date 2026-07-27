@@ -33,9 +33,8 @@ function hasQuotationItemValue(item) {
   );
 }
 
-export default function QuotationBuilder({ customers, user }) {
-  const router = useRouter();
-  const [form, setForm] = useState({
+function createDefaultForm() {
+  return {
     quotationNumber: "",
     quotationDate: new Date().toISOString().slice(0, 10),
     validityDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -48,11 +47,51 @@ export default function QuotationBuilder({ customers, user }) {
     terms: "Quotation is valid for 30 days from the date of issue.",
     validityPeriod: "30 days",
     status: "Draft"
+  };
+}
+
+function createInitialItems(initialQuotation) {
+  if (Array.isArray(initialQuotation?.items) && initialQuotation.items.length) {
+    return initialQuotation.items.map((item) => ({
+      description: item.description || "",
+      unit: item.unit || "Sqft",
+      quantity: item.quantity ?? 1,
+      rate: item.rate ?? "0",
+      amount: item.amount ?? "",
+      gstPercentage: item.gstPercentage ?? 18
+    }));
+  }
+
+  return [createEmptyItem(), { ...createEmptyItem(), description: "Labour charges", unit: "Nos" }];
+}
+
+export default function QuotationBuilder({ customers, user, initialQuotation = null }) {
+  const router = useRouter();
+  const isEditMode = Boolean(initialQuotation?.id);
+  const [form, setForm] = useState(() => {
+    const baseForm = createDefaultForm();
+
+    if (!initialQuotation) {
+      return baseForm;
+    }
+
+    return {
+      ...baseForm,
+      quotationNumber: initialQuotation.quotationNumber || "",
+      quotationDate: initialQuotation.quotationDate || baseForm.quotationDate,
+      validityDate: initialQuotation.validityDate || baseForm.validityDate,
+      projectName: initialQuotation.projectName || "",
+      description: initialQuotation.description || "",
+      customerId: initialQuotation.customerId || "",
+      customerName: initialQuotation.customerDetails?.clientName || initialQuotation.customerName || "",
+      taxMode: initialQuotation.taxMode || baseForm.taxMode,
+      notes: initialQuotation.notes || baseForm.notes,
+      terms: initialQuotation.terms || baseForm.terms,
+      validityPeriod: initialQuotation.validityPeriod || baseForm.validityPeriod,
+      status: initialQuotation.status || baseForm.status
+    };
   });
-  const [items, setItems] = useState([
-    createEmptyItem(),
-    { ...createEmptyItem(), description: "Labour charges", unit: "Nos" }
-  ]);
+  const [items, setItems] = useState(() => createInitialItems(initialQuotation));
   const [statusMsg, setStatusMsg] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -101,8 +140,8 @@ export default function QuotationBuilder({ customers, user }) {
     setStatusMsg("");
 
     try {
-      const response = await fetch("/api/quotations", {
-        method: "POST",
+      const response = await fetch(isEditMode ? `/api/quotations/${initialQuotation.id}` : "/api/quotations", {
+        method: isEditMode ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json"
         },
@@ -111,10 +150,13 @@ export default function QuotationBuilder({ customers, user }) {
           items
         })
       });
-      const payload = await readJsonResponse(response, "Unable to create quotation.");
+      const payload = await readJsonResponse(
+        response,
+        isEditMode ? "Unable to update quotation." : "Unable to create quotation."
+      );
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to create quotation.");
+        throw new Error(payload.error || (isEditMode ? "Unable to update quotation." : "Unable to create quotation."));
       }
 
       router.push(`/quotations/${payload.quotation.id}`);
@@ -300,7 +342,7 @@ export default function QuotationBuilder({ customers, user }) {
             Add item
           </button>
           <button className="button-primary w-full sm:w-auto" disabled={isSaving} type="submit">
-            {isSaving ? "Creating..." : "Create quotation"}
+            {isSaving ? (isEditMode ? "Updating..." : "Creating...") : isEditMode ? "Update quotation" : "Create quotation"}
           </button>
         </div>
 

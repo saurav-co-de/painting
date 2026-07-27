@@ -24,10 +24,8 @@ function FieldLabel({ label, children, className = "" }) {
   );
 }
 
-export default function InvoiceBuilder({ customers, user }) {
-  const router = useRouter();
-  const initialCustomer = customers[0] || null;
-  const [form, setForm] = useState({
+function createDefaultForm(initialCustomer) {
+  return {
     invoiceNumber: "",
     invoiceDate: new Date().toISOString().slice(0, 10),
     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -40,11 +38,51 @@ export default function InvoiceBuilder({ customers, user }) {
     notes: "Thank you for your business.",
     terms: "Payment due within 7 days.",
     paymentStatus: "Pending"
+  };
+}
+
+function createInitialItems(initialInvoice) {
+  if (Array.isArray(initialInvoice?.items) && initialInvoice.items.length) {
+    return initialInvoice.items.map((item) => ({
+      description: item.description || "",
+      unit: item.unit || "Sqft",
+      quantity: item.quantity ?? 1,
+      rate: item.rate ?? 0,
+      gstPercentage: item.gstPercentage ?? 18
+    }));
+  }
+
+  return [createEmptyItem(), { ...createEmptyItem(), description: "Labour charges", unit: "Nos" }];
+}
+
+export default function InvoiceBuilder({ customers, user, initialInvoice = null }) {
+  const router = useRouter();
+  const initialCustomer = customers[0] || null;
+  const isEditMode = Boolean(initialInvoice?.id);
+  const [form, setForm] = useState(() => {
+    const baseForm = createDefaultForm(initialCustomer);
+
+    if (!initialInvoice) {
+      return baseForm;
+    }
+
+    return {
+      ...baseForm,
+      invoiceNumber: initialInvoice.invoiceNumber || "",
+      invoiceDate: initialInvoice.invoiceDate || baseForm.invoiceDate,
+      dueDate: initialInvoice.dueDate || baseForm.dueDate,
+      projectName: initialInvoice.projectName || "",
+      billSubject: initialInvoice.billSubject || initialInvoice.projectName || "",
+      customerId: initialInvoice.customerId || baseForm.customerId,
+      customerName: initialInvoice.customerDetails?.clientName || initialInvoice.customerName || baseForm.customerName,
+      taxMode: initialInvoice.taxMode || baseForm.taxMode,
+      advancePayment: initialInvoice.advancePayment ?? "",
+      notes: initialInvoice.notes || baseForm.notes,
+      terms: initialInvoice.terms || baseForm.terms,
+      paymentStatus: initialInvoice.paymentStatus || baseForm.paymentStatus
+    };
   });
-  const [items, setItems] = useState([
-    createEmptyItem(),
-    { ...createEmptyItem(), description: "Labour charges", unit: "Nos" }
-  ]);
+  const [items, setItems] = useState(() => createInitialItems(initialInvoice));
   const [status, setStatus] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -98,8 +136,8 @@ export default function InvoiceBuilder({ customers, user }) {
     setStatus("");
 
     try {
-      const response = await fetch("/api/invoices", {
-        method: "POST",
+      const response = await fetch(isEditMode ? `/api/invoices/${initialInvoice.id}` : "/api/invoices", {
+        method: isEditMode ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json"
         },
@@ -108,10 +146,13 @@ export default function InvoiceBuilder({ customers, user }) {
           items
         })
       });
-      const payload = await readJsonResponse(response, "Unable to create invoice.");
+      const payload = await readJsonResponse(
+        response,
+        isEditMode ? "Unable to update invoice." : "Unable to create invoice."
+      );
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to create invoice.");
+        throw new Error(payload.error || (isEditMode ? "Unable to update invoice." : "Unable to create invoice."));
       }
 
       router.push(`/invoices/${payload.invoice.id}`);
@@ -290,7 +331,7 @@ export default function InvoiceBuilder({ customers, user }) {
             Add item
           </button>
           <button className="button-primary w-full sm:w-auto" disabled={isSaving} type="submit">
-            {isSaving ? "Creating..." : "Create invoice"}
+            {isSaving ? (isEditMode ? "Updating..." : "Creating...") : isEditMode ? "Update invoice" : "Create invoice"}
           </button>
         </div>
 

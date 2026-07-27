@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { deleteQuotation, findQuotationForUser, updateQuotationStatus } from "@/lib/db";
+import {
+  deleteQuotation,
+  findQuotationForUser,
+  updateQuotationRecord,
+  updateQuotationStatus
+} from "@/lib/db";
 
 export async function GET(request, { params }) {
   try {
@@ -24,6 +29,23 @@ export async function PATCH(request, { params }) {
     const { quotationId } = await params;
     const payload = await request.json();
     const quotation = await updateQuotationStatus(user.id, quotationId, payload.status);
+
+    if (!quotation) {
+      return NextResponse.json({ error: "Quotation not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ quotation });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: error.status || 500 });
+  }
+}
+
+export async function PUT(request, { params }) {
+  try {
+    const user = await requireUser();
+    const { quotationId } = await params;
+    const payload = await request.json();
+    const quotation = await updateQuotationRecord(user.id, quotationId, payload);
 
     if (!quotation) {
       return NextResponse.json({ error: "Quotation not found." }, { status: 404 });

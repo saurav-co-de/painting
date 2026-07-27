@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { readJsonResponse } from "@/lib/api";
 import { formatCurrency } from "@/lib/billing";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import Toast from "@/components/Toast";
 
 export default function InvoicesTable({ initialInvoices }) {
+  const router = useRouter();
   const [invoices, setInvoices] = useState(initialInvoices);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [busyId, setBusyId] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, setToast] = useState(null);
   const deferredQuery = useDeferredValue(query);
 
   function invoiceClientName(invoice) {
@@ -36,6 +42,15 @@ export default function InvoicesTable({ initialInvoices }) {
     });
   }, [deferredQuery, filter, invoices]);
 
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
   async function updateStatus(invoiceId, paymentStatus) {
     setBusyId(invoiceId);
 
@@ -58,6 +73,36 @@ export default function InvoicesTable({ initialInvoices }) {
           current.map((invoice) => (invoice.id === invoiceId ? payload.invoice : invoice))
         );
       });
+      router.refresh();
+      setToast({ type: "success", message: "Invoice updated successfully." });
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Could not update invoice." });
+    } finally {
+      setBusyId("");
+    }
+  }
+
+  async function deleteInvoice(invoiceId) {
+    setBusyId(invoiceId);
+
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}`, {
+        method: "DELETE"
+      });
+      const payload = await readJsonResponse(response, "Could not delete invoice.");
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Could not delete invoice.");
+      }
+
+      startTransition(() => {
+        setInvoices((current) => current.filter((invoice) => invoice.id !== invoiceId));
+      });
+      router.refresh();
+      setToast({ type: "success", message: "Invoice deleted successfully." });
+      setDeleteTarget(null);
+    } catch (error) {
+      setToast({ type: "error", message: error.message || "Could not delete invoice." });
     } finally {
       setBusyId("");
     }
@@ -139,6 +184,19 @@ export default function InvoicesTable({ initialInvoices }) {
                   Mark Paid
                 </button>
               ) : null}
+              <Link className="button-secondary px-3 py-2 text-center text-sm" href={`/invoices/${invoice.id}/edit`}>
+                <span aria-hidden="true">✏️</span>
+                Edit
+              </Link>
+              <button
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={busyId === invoice.id}
+                onClick={() => setDeleteTarget(invoice)}
+                type="button"
+              >
+                <span aria-hidden="true">🗑️</span>
+                {busyId === invoice.id && deleteTarget?.id === invoice.id ? "Deleting..." : "Delete"}
+              </button>
               <a
                 className="button-secondary px-3 py-2 text-sm"
                 download={`${invoice.invoiceNumber}.pdf`}
@@ -198,7 +256,7 @@ export default function InvoicesTable({ initialInvoices }) {
                   </span>
                 </td>
                 <td className="py-4 text-right">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex flex-wrap justify-end gap-2">
                     {invoice.paymentStatus !== "Paid" ? (
                       <button
                         className="button-secondary px-3 py-2 text-sm"
@@ -209,6 +267,19 @@ export default function InvoicesTable({ initialInvoices }) {
                         Mark Paid
                       </button>
                     ) : null}
+                    <Link className="button-secondary px-3 py-2 text-center text-sm" href={`/invoices/${invoice.id}/edit`}>
+                      <span aria-hidden="true">✏️</span>
+                      Edit
+                    </Link>
+                    <button
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={busyId === invoice.id}
+                      onClick={() => setDeleteTarget(invoice)}
+                      type="button"
+                    >
+                      <span aria-hidden="true">🗑️</span>
+                      {busyId === invoice.id && deleteTarget?.id === invoice.id ? "Deleting..." : "Delete"}
+                    </button>
                     <a
                       className="button-secondary px-3 py-2 text-sm"
                       download={`${invoice.invoiceNumber}.pdf`}
@@ -229,6 +300,18 @@ export default function InvoicesTable({ initialInvoices }) {
           No invoices matched your filters.
         </div>
       ) : null}
+
+      <ConfirmDialog
+        cancelLabel="Cancel"
+        confirmLabel="Delete"
+        isDeleting={busyId === deleteTarget?.id}
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => deleteInvoice(deleteTarget.id)}
+        open={Boolean(deleteTarget)}
+        title="Delete Invoice"
+      />
+      <Toast toast={toast} />
     </section>
   );
 }
