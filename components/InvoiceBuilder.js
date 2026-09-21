@@ -289,6 +289,7 @@ export default function InvoiceBuilder({ customers, user, initialInvoice = null 
                     min="0"
                     onChange={(event) => updateItem(index, "quantity", event.target.value)}
                     placeholder="Qty"
+                    step="any"
                     type="number"
                     value={item.quantity}
                   />
@@ -299,6 +300,7 @@ export default function InvoiceBuilder({ customers, user, initialInvoice = null 
                     min="0"
                     onChange={(event) => updateItem(index, "rate", event.target.value)}
                     placeholder="Rate"
+                    step="any"
                     type="number"
                     value={item.rate}
                   />

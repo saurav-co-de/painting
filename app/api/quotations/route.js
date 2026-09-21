@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { calculateInvoice, createInvoiceNumber } from "@/lib/billing";
+import { calculateInvoice, createInvoiceNumber, validateLineItemNumbers } from "@/lib/billing";
 import { createQuotationRecord, listCustomersForUser, listQuotationsForUser } from "@/lib/db";
 
 function hasQuotationItemValue(item) {
@@ -40,6 +40,12 @@ export async function POST(request) {
       return NextResponse.json({ error: "Choose a valid customer first." }, { status: 400 });
     }
 
+    const itemValidationError = validateLineItemNumbers(payload.items);
+
+    if (itemValidationError) {
+      return NextResponse.json({ error: itemValidationError }, { status: 400 });
+    }
+
     const quotedSourceItems = Array.isArray(payload.items)
       ? payload.items.filter(hasQuotationItemValue)
       : [];
@@ -49,7 +55,7 @@ export async function POST(request) {
     });
     const quotationItems = quotationMath.items.map((item, index) => ({
       ...item,
-      rate: String(quotedSourceItems[index]?.rate ?? item.rate ?? ""),
+      rate: item.rate,
       amount: item.amount
     }));
 

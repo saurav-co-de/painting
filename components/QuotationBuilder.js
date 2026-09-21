@@ -292,6 +292,7 @@ export default function QuotationBuilder({ customers, user, initialQuotation = n
                     min="0"
                     onChange={(event) => updateItem(index, "quantity", event.target.value)}
                     placeholder="Qty"
+                    step="any"
                     type="number"
                     value={item.quantity}
                   />
@@ -299,9 +300,11 @@ export default function QuotationBuilder({ customers, user, initialQuotation = n
                 <FieldLabel label="Rate">
                   <input
                     className="field"
+                    min="0"
                     onChange={(event) => updateItem(index, "rate", event.target.value)}
-                    placeholder="Rate or text"
-                    type="text"
+                    placeholder="Rate"
+                    step="any"
+                    type="number"
                     value={item.rate}
                   />
                 </FieldLabel>

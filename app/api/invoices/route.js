@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { calculateInvoice, createInvoiceNumber, derivePaymentStatus } from "@/lib/billing";
+import {
+  calculateInvoice,
+  createInvoiceNumber,
+  derivePaymentStatus,
+  validateLineItemNumbers
+} from "@/lib/billing";
 import { createInvoiceRecord, listCustomersForUser, listInvoicesForUser } from "@/lib/db";
 
 export async function GET() {
@@ -34,6 +39,12 @@ export async function POST(request) {
 
     if (customerId && !customer) {
       return NextResponse.json({ error: "Choose a valid customer first." }, { status: 400 });
+    }
+
+    const itemValidationError = validateLineItemNumbers(payload.items);
+
+    if (itemValidationError) {
+      return NextResponse.json({ error: itemValidationError }, { status: 400 });
     }
 
     const invoiceMath = calculateInvoice(payload.items, payload.taxMode);

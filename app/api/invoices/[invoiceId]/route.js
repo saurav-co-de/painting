@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { validateLineItemNumbers } from "@/lib/billing";
 import { derivePaymentStatus } from "@/lib/billing";
 import {
   deleteInvoice,
@@ -56,6 +57,13 @@ export async function PUT(request, { params }) {
     const user = await requireUser();
     const { invoiceId } = await params;
     const payload = await request.json();
+
+    const itemValidationError = validateLineItemNumbers(payload.items);
+
+    if (itemValidationError) {
+      return NextResponse.json({ error: itemValidationError }, { status: 400 });
+    }
+
     const invoice = await updateInvoiceRecord(user.id, invoiceId, payload);
 
     if (!invoice) {

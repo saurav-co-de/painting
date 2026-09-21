@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { validateLineItemNumbers } from "@/lib/billing";
 import {
   deleteQuotation,
   findQuotationForUser,
@@ -45,6 +46,13 @@ export async function PUT(request, { params }) {
     const user = await requireUser();
     const { quotationId } = await params;
     const payload = await request.json();
+
+    const itemValidationError = validateLineItemNumbers(payload.items);
+
+    if (itemValidationError) {
+      return NextResponse.json({ error: itemValidationError }, { status: 400 });
+    }
+
     const quotation = await updateQuotationRecord(user.id, quotationId, payload);
 
     if (!quotation) {
