@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { readJsonResponse } from "@/lib/api";
 
 function FieldControl({ id, label, children, className = "" }) {
@@ -28,6 +28,42 @@ export default function SettingsForm({ user }) {
     subscriptionPlan: user.subscriptionPlan || "Free"
   });
   const [status, setStatus] = useState("");
+  const [dbHealth, setDbHealth] = useState(null);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
+
+  async function loadHealth() {
+    try {
+      const res = await fetch("/api/health");
+      const data = await readJsonResponse(res);
+      setDbHealth(data);
+    } catch {
+      setDbHealth(null);
+    }
+  }
+
+  useEffect(() => {
+    loadHealth();
+  }, []);
+
+  async function handleRunSync() {
+    setSyncLoading(true);
+    setSyncMessage("Synchronizing pending records...");
+    try {
+      const res = await fetch("/api/sync", { method: "POST" });
+      const data = await readJsonResponse(res);
+      if (res.ok) {
+        setSyncMessage(`Sync complete: ${data.results?.succeeded ?? 0} processed successfully.`);
+        await loadHealth();
+      } else {
+        setSyncMessage(data.error || "Sync failed.");
+      }
+    } catch (err) {
+      setSyncMessage(err.message || "Failed to trigger sync.");
+    } finally {
+      setSyncLoading(false);
+    }
+  }
 
   function updateField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -194,6 +230,113 @@ export default function SettingsForm({ user }) {
           </button>
         </div>
       </form>
+
+      {/* Database Resilience & Backup Status Card */}
+      <div className="mt-8 border-t border-slate-200/80 pt-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Database Resilience & Backup Status</h3>
+            <p className="text-xs text-slate-500">
+              High-availability dual-database architecture: Supabase Primary with MongoDB Atlas Secondary backup.
+            </p>
+          </div>
+          <button
+            className="button-secondary text-xs"
+            disabled={syncLoading}
+            onClick={handleRunSync}
+            type="button"
+          >
+            {syncLoading ? "Syncing..." : "Run Sync Now"}
+          </button>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* Supabase Status */}
+          <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Supabase (Primary)</span>
+              {dbHealth?.databases?.supabase?.status === "ONLINE" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Online
+                </span>
+              ) : dbHealth?.databases?.supabase?.status === "OFFLINE" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  Offline
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Checking
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-slate-600">
+              {dbHealth?.databases?.supabase?.mode === "supabase_postgres"
+                ? "PostgreSQL connection pool active"
+                : "Local zero-dependency DB active"}
+            </p>
+          </div>
+
+          {/* MongoDB Atlas Status */}
+          <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">MongoDB Atlas (Backup)</span>
+              {dbHealth?.databases?.mongodb?.status === "ONLINE" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Connected
+                </span>
+              ) : dbHealth?.databases?.mongodb?.status === "NOT_CONFIGURED" ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                  <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+                  Not Configured
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  Offline
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-slate-600">
+              {dbHealth?.databases?.mongodb?.status === "ONLINE"
+                ? `Latency: ${dbHealth.databases.mongodb.latencyMs ?? 0}ms`
+                : dbHealth?.databases?.mongodb?.status === "NOT_CONFIGURED"
+                ? "Add MONGODB_URI to enable"
+                : "Unreachable (retrying)"}
+            </p>
+          </div>
+
+          {/* Synchronization Queue */}
+          <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Sync Status</span>
+              {(dbHealth?.sync?.pending ?? 0) === 0 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Up to date
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Pending: {dbHealth?.sync?.pending}
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-xs text-slate-600">
+              {(dbHealth?.sync?.failed ?? 0) > 0
+                ? `${dbHealth.sync.failed} jobs need attention`
+                : "Automatic retry on standby"}
+            </p>
+          </div>
+        </div>
+
+        {syncMessage && (
+          <p className="mt-3 text-xs text-slate-600 italic animate-fade-in">{syncMessage}</p>
+        )}
+      </div>
     </section>
   );
 }
