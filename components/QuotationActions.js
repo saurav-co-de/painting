@@ -2,20 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import { readJsonResponse } from "@/lib/api";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { IconDownload, IconTrash, IconEdit } from "@/components/Icons";
 
 export default function QuotationActions({ quotationId, quotationNumber }) {
   const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [status, setStatus] = useState("");
 
   async function deleteQuotation() {
-    const confirmed = window.confirm("Delete this quotation?");
-
-    if (!confirmed) {
-      return;
-    }
-
     setIsDeleting(true);
     setStatus("");
 
@@ -34,27 +32,49 @@ export default function QuotationActions({ quotationId, quotationNumber }) {
     } catch (error) {
       setStatus(error.message);
       setIsDeleting(false);
+      setShowConfirm(false);
     }
   }
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-      <a
-        className="button-primary"
-        download={`${quotationNumber || "quotation"}.pdf`}
-        href={`/api/quotations/${quotationId}/pdf`}
-      >
-        Download
-      </a>
-      <button
-        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-center font-medium text-rose-900 transition hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isDeleting}
-        onClick={deleteQuotation}
-        type="button"
-      >
-        {isDeleting ? "Deleting..." : "Delete"}
-      </button>
-      {status ? <p className="w-full text-sm text-rose-700">{status}</p> : null}
-    </div>
+    <>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          className="button-secondary text-xs sm:text-sm py-2"
+          href={`/quotations/${quotationId}/edit`}
+        >
+          <IconEdit className="w-3.5 h-3.5 text-slate-500" />
+          <span>Edit</span>
+        </Link>
+        <a
+          className="button-primary text-xs sm:text-sm py-2"
+          download={`${quotationNumber || "quotation"}.pdf`}
+          href={`/api/quotations/${quotationId}/pdf`}
+        >
+          <IconDownload className="w-3.5 h-3.5" />
+          <span>Download PDF</span>
+        </a>
+        <button
+          className="button-danger text-xs sm:text-sm py-2"
+          onClick={() => setShowConfirm(true)}
+          type="button"
+        >
+          <IconTrash className="w-3.5 h-3.5" />
+          <span>Delete</span>
+        </button>
+        {status && <p className="w-full text-xs text-rose-600">{status}</p>}
+      </div>
+
+      <ConfirmDialog
+        cancelLabel="Cancel"
+        confirmLabel="Yes, Delete Quotation"
+        isDeleting={isDeleting}
+        message={`Are you sure you want to delete quotation ${quotationNumber}? This action cannot be undone.`}
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={deleteQuotation}
+        open={showConfirm}
+        title="Delete Quotation"
+      />
+    </>
   );
 }

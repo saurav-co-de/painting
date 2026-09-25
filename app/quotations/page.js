@@ -26,8 +26,8 @@ export default async function QuotationsPage() {
 
     return (
       <AppShell
-        description="Search quotations, review customer estimates, and open them in bill format."
-        title="Quotation history"
+        description="Search, sort, filter, and review project estimates in traditional bill format."
+        title="Quotations"
         user={user}
       >
         <QuotationsTable quotations={quotationsWithCustomer} user={user} />

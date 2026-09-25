@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { readJsonResponse } from "@/lib/api";
+import { IconCheckCircle, IconAlertCircle } from "@/components/Icons";
 
 export default function ResetPasswordForm({ token }) {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function ResetPasswordForm({ token }) {
       }
 
       setStatus({ tone: "success", message: payload.message });
-      setTimeout(() => router.replace("/login"), 1000);
+      setTimeout(() => router.replace("/login"), 1200);
     } catch (error) {
       setStatus({ tone: "error", message: error.message });
     } finally {
@@ -53,44 +54,62 @@ export default function ResetPasswordForm({ token }) {
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
-      <input
-        className="field"
-        minLength={8}
-        onChange={(event) => setPassword(event.target.value)}
-        placeholder="New password"
-        required
-        type="password"
-        value={password}
-      />
-      <input
-        className="field"
-        minLength={8}
-        onChange={(event) => setConfirmPassword(event.target.value)}
-        placeholder="Confirm new password"
-        required
-        type="password"
-        value={confirmPassword}
-      />
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+          New Password (min 8 chars)
+        </label>
+        <input
+          className="field"
+          minLength={8}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="••••••••"
+          required
+          type="password"
+          value={password}
+        />
+      </div>
 
-      {status.message ? (
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+          Confirm New Password
+        </label>
+        <input
+          className="field"
+          minLength={8}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          placeholder="••••••••"
+          required
+          type="password"
+          value={confirmPassword}
+        />
+      </div>
+
+      {status.message && (
         <div
-          className={`rounded-xl border px-4 py-3 text-sm ${
+          className={`rounded-lg p-3 text-xs leading-relaxed flex items-start gap-2 ${
             status.tone === "error"
-              ? "border-rose-200 bg-rose-50 text-rose-900"
-              : "border-emerald-200 bg-emerald-50 text-emerald-900"
+              ? "bg-rose-50 text-rose-800 border border-rose-200"
+              : "bg-emerald-50 text-emerald-800 border border-emerald-200"
           }`}
         >
-          {status.message}
+          {status.tone === "error" ? (
+            <IconAlertCircle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
+          ) : (
+            <IconCheckCircle className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+          )}
+          <span>{status.message}</span>
         </div>
-      ) : null}
+      )}
 
       <button className="button-primary w-full" disabled={isSaving} type="submit">
-        {isSaving ? "Updating..." : "Update password"}
+        {isSaving ? "Updating Password..." : "Set New Password"}
       </button>
 
-      <Link className="button-secondary w-full" href="/login">
-        Back to login
-      </Link>
+      <div className="text-center pt-2">
+        <Link className="text-xs font-medium text-slate-500 hover:text-slate-800" href="/login">
+          ← Back to Sign In
+        </Link>
+      </div>
     </form>
   );
 }

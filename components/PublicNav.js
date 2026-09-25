@@ -8,36 +8,40 @@ const publicLinks = [
 
 export default function PublicNav() {
   return (
-    <header className="sticky top-2 z-30 mx-auto w-full max-w-[1800px] px-2 pt-2 sm:top-3 sm:px-6 sm:pt-3 xl:px-8">
-      <nav className="glass-card flex min-w-0 flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-        <Link className="flex min-w-0 items-center gap-3" href="/">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-sm font-bold text-white">
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link className="flex items-center gap-2.5" href="/">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-700 text-sm font-bold text-white shadow-xs">
             BB
           </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-slate-950">BuildBill AI</span>
-            <span className="block truncate text-xs text-slate-500">GST billing workspace</span>
+          <span className="text-lg font-bold tracking-tight text-slate-900">
+            BuildBill AI
           </span>
         </Link>
 
-        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          {publicLinks.map((item) => (
-            <Link
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
-              href={item.href}
-              key={item.href}
-            >
-              {item.label}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <nav className="flex items-center gap-1">
+            {publicLinks.map((item) => (
+              <Link
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                href={item.href}
+                key={item.href}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-2 flex items-center gap-2 pl-2 border-l border-slate-200">
+            <Link className="button-secondary text-xs sm:text-sm py-1.5 px-3" href="/login">
+              Sign In
             </Link>
-          ))}
-          <Link className="button-secondary px-4 py-2 text-sm sm:w-auto" href="/login">
-            Login
-          </Link>
-          <Link className="button-primary px-4 py-2 text-sm sm:w-auto" href="/signup">
-            Start free
-          </Link>
+            <Link className="button-primary text-xs sm:text-sm py-1.5 px-3.5" href="/signup">
+              Start Free
+            </Link>
+          </div>
         </div>
-      </nav>
+      </div>
     </header>
   );
 }

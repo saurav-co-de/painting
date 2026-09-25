@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 import AuthForm from "@/components/AuthForm";
 import { getCurrentUser } from "@/lib/auth";
 
+export const metadata = {
+  title: "Create Account"
+};
+
 export default async function SignupPage() {
   const user = await getCurrentUser();
 

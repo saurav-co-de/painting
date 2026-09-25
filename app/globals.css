@@ -1,20 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --font-sans: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
-  --font-display: "Bahnschrift", "Trebuchet MS", sans-serif;
-  --surface: #f5f7fb;
-  --surface-deep: #e7edf5;
-  --card: rgba(255, 255, 255, 0.96);
-  --border: rgba(15, 23, 42, 0.11);
-  --border-strong: rgba(15, 23, 42, 0.2);
-  --text: #172033;
+  --font-sans: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --surface: #f8fafc;
+  --surface-muted: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
   --muted: #64748b;
   --brand: #0f766e;
   --brand-strong: #115e59;
-  --accent: #7c3aed;
-  --ink: #111827;
-  --shadow: 0 18px 44px -34px rgba(15, 23, 42, 0.48);
+  --brand-light: #f0fdfa;
+  --brand-border: #ccfbf1;
 }
 
 * {
@@ -25,36 +23,29 @@ html,
 body {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  min-height: 100vh;
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background-color: var(--surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-body {
-  min-height: 100vh;
-  margin: 0;
-  color: var(--text);
-  font-family: var(--font-sans), sans-serif;
-  background:
-    linear-gradient(180deg, #fbfdff 0%, #f5f7fb 44%, #eef3f8 100%);
-}
-
-body::before {
-  display: none;
-}
-
 a {
   text-decoration: none;
-  overflow-wrap: anywhere;
+  color: inherit;
 }
 
 button,
 input,
 select,
 textarea {
-  font: inherit;
+  font-family: inherit;
 }
 
 button,
@@ -74,121 +65,118 @@ textarea {
   resize: vertical;
 }
 
-::selection {
-  color: white;
-  background: rgba(192, 90, 43, 0.8);
+/* Common UI Components */
+.card {
+  @apply rounded-xl border border-slate-200/90 bg-white shadow-xs transition-shadow duration-150;
 }
 
-.font-display {
-  font-family: var(--font-display), sans-serif;
-}
-
-.glass-card {
-  @apply rounded-lg border bg-white/95 shadow-[var(--shadow)] backdrop-blur-xl;
-  border-color: var(--border);
-}
-
-.hero-card {
-  @apply rounded-lg border shadow-[var(--shadow)];
-  border-color: rgba(255, 255, 255, 0.18);
-  background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.98) 0%, rgba(20, 83, 45, 0.98) 45%, rgba(17, 24, 39, 0.99) 100%);
-}
-
-.stat-card {
-  @apply rounded-lg border border-slate-200/75 bg-white px-4 py-4 shadow-sm shadow-slate-200/50 sm:px-5 sm:py-5;
+.card-hover {
+  @apply rounded-xl border border-slate-200/90 bg-white shadow-xs transition-all duration-150 hover:border-slate-300 hover:shadow-sm;
 }
 
 .button-primary {
-  @apply inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg px-5 py-3 text-center font-semibold text-white transition-all duration-200;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
-  box-shadow: 0 16px 40px -24px rgba(15, 118, 110, 0.9);
-}
-
-.button-primary:hover {
-  transform: translateY(-1px);
-  filter: saturate(1.08) brightness(1.02);
-}
-
-.button-primary:disabled,
-.button-secondary:disabled,
-.button-light:disabled,
-.button-dark:disabled {
-  opacity: 0.62;
-  cursor: not-allowed;
-  transform: none;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-teal-800 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:opacity-60 disabled:pointer-events-none;
 }
 
 .button-secondary {
-  @apply inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-center font-medium text-slate-800 transition-all duration-200;
-  border-color: rgba(15, 23, 42, 0.16);
-  background: rgba(255, 255, 255, 0.96);
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-2xs transition-all duration-150 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:opacity-60 disabled:pointer-events-none;
 }
 
-.button-secondary:hover {
-  border-color: rgba(15, 118, 110, 0.34);
-  background: #f8fafc;
-  color: #0f172a;
+.button-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none;
+}
+
+.button-danger {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-3.5 py-2 text-sm font-medium text-rose-700 shadow-2xs transition-all duration-150 hover:bg-rose-50 hover:border-rose-300 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 disabled:opacity-60 disabled:pointer-events-none;
 }
 
 .button-light {
-  @apply inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold text-slate-950 transition;
-  background: #ecfeff;
-}
-
-.button-light:hover {
-  background: #cffafe;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-teal-50 border border-teal-200/60 px-4 py-2.5 text-sm font-semibold text-teal-800 transition-all duration-150 hover:bg-teal-100 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none;
 }
 
 .button-dark {
-  @apply inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-lg border px-5 py-3 font-semibold text-white transition;
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(17, 24, 39, 0.3);
-}
-
-.button-dark:hover {
-  background: rgba(17, 24, 39, 0.48);
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-slate-800 active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none;
 }
 
 .field {
-  @apply w-full min-w-0 rounded-lg border bg-white px-4 py-3 text-base text-slate-950 outline-none transition-all duration-200 sm:text-sm;
-  border-color: rgba(15, 23, 42, 0.18);
+  @apply w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-2xs transition duration-150 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/15 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed;
 }
 
-.field::placeholder {
-  color: #64748b;
+select.field {
+  @apply pr-8 bg-no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
 }
 
-.field:disabled {
-  color: #94a3b8;
-  background: rgba(241, 245, 249, 0.85);
-  cursor: not-allowed;
+/* Status Badges */
+.badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide;
 }
 
-.mobile-scrollbar {
-  scrollbar-width: thin;
+.badge-paid,
+.badge-accepted {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200/60;
 }
 
-@media (max-width: 640px) {
-  body {
-    background:
-      linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 46%),
-      linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-  }
-
-  .font-display {
-    line-height: 1.08;
-  }
-
-  [class*="tracking-["] {
-    letter-spacing: 0.08em;
-  }
+.badge-pending,
+.badge-sent {
+  @apply bg-amber-50 text-amber-700 border border-amber-200/60;
 }
 
-.field:focus {
-  border-color: rgba(15, 118, 110, 0.5);
-  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.1);
+.badge-overdue,
+.badge-rejected {
+  @apply bg-rose-50 text-rose-700 border border-rose-200/60;
 }
+
+.badge-draft,
+.badge-expired {
+  @apply bg-slate-100 text-slate-700 border border-slate-200/80;
+}
+
+/* Modern Compact Tables */
+.table-container {
+  @apply w-full overflow-x-auto;
+}
+
+.custom-table {
+  @apply w-full text-left border-collapse text-sm;
+}
+
+.custom-table th {
+  @apply px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/80 border-b border-slate-200/80;
+}
+
+.custom-table td {
+  @apply px-4 py-3.5 border-b border-slate-100 text-slate-700 align-middle;
+}
+
+.custom-table tr:hover td {
+  @apply bg-slate-50/50;
+}
+
+/* Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========================================================= */
+/* Traditional Printable Tax Invoice / Quotation Sheet CSS   */
+/* MUST BE PRESERVED FOR ACCURATE BILLING & PDF GENERATION   */
+/* ========================================================= */
 
 .invoice-sheet {
   width: min(100%, 210mm);
@@ -271,11 +259,7 @@ textarea {
   }
 
   body {
-    background: white;
-  }
-
-  body::before {
-    display: none;
+    background: white !important;
   }
 
   .invoice-sheet {

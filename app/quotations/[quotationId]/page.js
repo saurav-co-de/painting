@@ -5,6 +5,12 @@ import QuotationActions from "@/components/QuotationActions";
 import { requireUser } from "@/lib/auth";
 import { formatCurrency, formatRupeesInWords } from "@/lib/billing";
 import { listQuotationsForUser } from "@/lib/db";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconMail,
+  IconWhatsApp
+} from "@/components/Icons";
 
 export const metadata = {
   title: "Quotation Details"
@@ -14,7 +20,7 @@ export default async function QuotationPage({ params }) {
   const user = await requireUser().catch(() => redirect("/login"));
   const { quotationId } = await params;
   const quotations = (await listQuotationsForUser(user.id)).sort(
-    (left, right) => new Date(right.createdAt) - new Date(left.createdAt)
+    (left, right) => new Date(right.createdAt || right.quotationDate) - new Date(left.createdAt || left.quotationDate)
   );
   const currentIndex = quotations.findIndex((entry) => entry.id === quotationId);
   const quotation = quotations[currentIndex];
@@ -25,18 +31,18 @@ export default async function QuotationPage({ params }) {
 
   const companyDetails = {
     ...quotation.companyDetails,
-    accountNumber: quotation.companyDetails.accountNumber || user.accountNumber || "",
-    ifscCode: quotation.companyDetails.ifscCode || user.ifscCode || "",
-    bankName: quotation.companyDetails.bankName || user.bankName || "",
-    branch: quotation.companyDetails.branch || user.branch || "",
-    signatureImage: quotation.companyDetails.signatureImage || user.signatureImage || ""
+    accountNumber: quotation.companyDetails?.accountNumber || user.accountNumber || "",
+    ifscCode: quotation.companyDetails?.ifscCode || user.ifscCode || "",
+    bankName: quotation.companyDetails?.bankName || user.bankName || "",
+    branch: quotation.companyDetails?.branch || user.branch || "",
+    signatureImage: quotation.companyDetails?.signatureImage || user.signatureImage || ""
   };
   const quoteSubject = quotation.description || quotation.projectName || "Work";
   const isWithoutGst = quotation.taxMode === "none";
   const customerDetails = quotation.customerDetails || {};
   const customerName = customerDetails.clientName || "";
   const shareText = encodeURIComponent(
-    `Quotation ${quotation.quotationNumber}${customerName ? ` for ${customerName}` : ""} - ${formatCurrency(quotation.totals.grandTotal)}`
+    `Quotation ${quotation.quotationNumber}${customerName ? ` for ${customerName}` : ""} - ${formatCurrency(quotation.totals?.grandTotal || 0)}`
   );
   const previousQuotation = currentIndex > 0 ? quotations[currentIndex - 1] : null;
   const nextQuotation = currentIndex < quotations.length - 1 ? quotations[currentIndex + 1] : null;
@@ -44,60 +50,77 @@ export default async function QuotationPage({ params }) {
   return (
     <AppShell
       actions={
-        <>
+        <div className="flex flex-wrap items-center gap-2">
           <QuotationActions quotationId={quotation.id} quotationNumber={quotation.quotationNumber} />
           <a
-            className="button-secondary"
+            className="button-secondary text-xs sm:text-sm py-2"
             href={`mailto:${user.email}?subject=${quotation.quotationNumber}&body=${shareText}`}
+            title="Share via Email"
           >
-            Email
+            <IconMail className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Email</span>
           </a>
           <a
-            className="button-secondary"
+            className="button-secondary text-xs sm:text-sm py-2"
             href={`https://wa.me/?text=${shareText}`}
             rel="noreferrer"
             target="_blank"
+            title="Share via WhatsApp"
           >
-            WhatsApp
+            <IconWhatsApp className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">WhatsApp</span>
           </a>
-        </>
+        </div>
       }
-      description="Review the quotation in the same bill format used for invoices."
+      description="Review project estimate in bill format, download PDF, or share with client."
       title={`Quotation ${quotation.quotationNumber}`}
       user={user}
     >
-      <nav className="glass-card flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
-        <Link className="button-secondary min-h-10 px-3 py-2 text-sm" href="/quotations">
-          Back to quotation history
+      {/* Sub-Navigation Bar */}
+      <nav className="card flex flex-col gap-2.5 p-3 sm:flex-row sm:items-center sm:justify-between print:hidden mb-5">
+        <Link
+          className="button-ghost text-xs text-slate-600 hover:text-slate-900 inline-flex items-center gap-1 self-start sm:self-auto"
+          href="/quotations"
+        >
+          <IconChevronLeft className="w-4 h-4" />
+          <span>Back to Quotations</span>
         </Link>
-        <div className="grid min-w-0 gap-2 sm:grid-cols-2">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           {previousQuotation ? (
             <Link
-              className="button-secondary min-h-10 px-3 py-2 text-sm"
+              className="button-secondary text-xs py-1.5 px-2.5"
               href={`/quotations/${previousQuotation.id}`}
+              title="Previous Quotation"
             >
-              Previous: {previousQuotation.quotationNumber}
+              <IconChevronLeft className="w-3.5 h-3.5" />
+              <span>{previousQuotation.quotationNumber}</span>
             </Link>
           ) : (
-            <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
-              Previous quotation
+            <span className="button-secondary text-xs py-1.5 px-2.5 opacity-40 cursor-not-allowed">
+              <IconChevronLeft className="w-3.5 h-3.5" />
+              <span>Previous</span>
             </span>
           )}
           {nextQuotation ? (
             <Link
-              className="button-secondary min-h-10 px-3 py-2 text-sm"
+              className="button-secondary text-xs py-1.5 px-2.5"
               href={`/quotations/${nextQuotation.id}`}
+              title="Next Quotation"
             >
-              Next: {nextQuotation.quotationNumber}
+              <span>{nextQuotation.quotationNumber}</span>
+              <IconChevronRight className="w-3.5 h-3.5" />
             </Link>
           ) : (
-            <span className="button-secondary min-h-10 px-3 py-2 text-sm opacity-60">
-              Next quotation
+            <span className="button-secondary text-xs py-1.5 px-2.5 opacity-40 cursor-not-allowed">
+              <span>Next</span>
+              <IconChevronRight className="w-3.5 h-3.5" />
             </span>
           )}
         </div>
       </nav>
-      <section className="glass-card mobile-scrollbar overflow-hidden p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:shadow-none">
+
+      {/* Printable Sheet Card */}
+      <section className="card overflow-hidden p-2 sm:p-6 print:overflow-visible print:bg-white print:p-0 print:border-0 print:shadow-none">
         <div className="invoice-sheet mx-auto bg-white p-4 text-slate-950 shadow-sm ring-1 ring-slate-200 sm:p-6 print:p-0 print:shadow-none print:ring-0">
           <article className="flex min-h-[277mm] flex-col border-2 border-slate-900 p-4 font-sans text-[12px] leading-5 sm:p-5 print:min-h-[277mm]">
             <header className="border-b-2 border-slate-700 pb-2">
@@ -172,7 +195,7 @@ export default async function QuotationPage({ params }) {
                         {item.quantity}
                       </td>
                       <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
-                        {String(item.rate || "-")}
+                        {Number(item.rate).toFixed(2)}
                       </td>
                       <td className="invoice-num border border-slate-800 px-1 py-1 text-right align-top">
                         {Number(item.amount).toFixed(2)}
@@ -185,21 +208,21 @@ export default async function QuotationPage({ params }) {
                       <span className="float-right font-semibold">Total</span>
                     </td>
                     <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
-                      {Number(quotation.totals.subtotal).toFixed(2)}
+                      {Number(quotation.totals?.subtotal || 0).toFixed(2)}
                     </td>
                   </tr>
-                  {!isWithoutGst && quotation.totals.igstTotal > 0 ? (
+                  {!isWithoutGst && Number(quotation.totals?.igstTotal || 0) > 0 ? (
                     <tr>
                       <td className="border border-slate-800 px-1 py-1" />
                       <td className="border border-slate-800 px-2 py-1" colSpan={4}>
                         <span className="float-right font-semibold">IGST</span>
                       </td>
                       <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
-                        {Number(quotation.totals.igstTotal).toFixed(2)}
+                        {Number(quotation.totals?.igstTotal || 0).toFixed(2)}
                       </td>
                     </tr>
                   ) : null}
-                  {!isWithoutGst && quotation.totals.igstTotal <= 0 ? (
+                  {!isWithoutGst && Number(quotation.totals?.igstTotal || 0) <= 0 ? (
                     <>
                       <tr>
                         <td className="border border-slate-800 px-1 py-1" />
@@ -207,7 +230,7 @@ export default async function QuotationPage({ params }) {
                           <span className="float-right font-semibold">CGST</span>
                         </td>
                         <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
-                          {Number(quotation.totals.cgstTotal).toFixed(2)}
+                          {Number(quotation.totals?.cgstTotal || 0).toFixed(2)}
                         </td>
                       </tr>
                       <tr>
@@ -216,7 +239,7 @@ export default async function QuotationPage({ params }) {
                           <span className="float-right font-semibold">SGST</span>
                         </td>
                         <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
-                          {Number(quotation.totals.sgstTotal).toFixed(2)}
+                          {Number(quotation.totals?.sgstTotal || 0).toFixed(2)}
                         </td>
                       </tr>
                     </>
@@ -227,7 +250,7 @@ export default async function QuotationPage({ params }) {
                       <span className="float-right font-semibold">Grand Total</span>
                     </td>
                     <td className="invoice-num border border-slate-800 px-1 py-1 text-right font-semibold">
-                      {Number(quotation.totals.grandTotal).toFixed(2)}
+                      {Number(quotation.totals?.grandTotal || 0).toFixed(2)}
                     </td>
                   </tr>
                 </tbody>
@@ -235,13 +258,16 @@ export default async function QuotationPage({ params }) {
             </div>
 
             <p className="mt-5 text-sm font-semibold sm:text-base">
-              ({formatRupeesInWords(quotation.totals.grandTotal)})
+              ({formatRupeesInWords(quotation.totals?.grandTotal || 0)})
             </p>
 
-            <div className="mt-4 font-medium">
-              {quotation.notes ? <p>Notes : {quotation.notes}</p> : null}
-              {quotation.terms ? <p>Terms : {quotation.terms}</p> : null}
-              {quotation.validityPeriod ? <p>Validity : {quotation.validityPeriod}</p> : null}
+            <div className="mt-5 font-medium">
+              <p className="underline">Bank Details:</p>
+              <p>Bank Holder Name : {companyDetails.companyName}</p>
+              <p>A/c Number : {companyDetails.accountNumber || "-"}</p>
+              <p>IFSC Code : {companyDetails.ifscCode || "-"}</p>
+              <p>Bank Name : {companyDetails.bankName || "-"}</p>
+              <p>Branch : {companyDetails.branch || "-"}</p>
             </div>
 
             <div className="mt-auto grid gap-6 pt-10 font-medium sm:grid-cols-[minmax(0,1fr)_minmax(11rem,14rem)] sm:items-end sm:gap-8">
@@ -259,12 +285,6 @@ export default async function QuotationPage({ params }) {
                 </div>
                 <p className="mt-1 font-semibold">Proprietor</p>
               </div>
-            </div>
-
-            <div className="mt-8 print:hidden">
-              <Link className="text-sm font-semibold text-[var(--brand)]" href="/quotations">
-                Back to quotation history
-              </Link>
             </div>
           </article>
         </div>

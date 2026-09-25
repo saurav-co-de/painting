@@ -3,14 +3,18 @@ import AppShell from "@/components/AppShell";
 import SettingsForm from "@/components/SettingsForm";
 import { requireUser } from "@/lib/auth";
 
+export const metadata = {
+  title: "Settings"
+};
+
 export default async function SettingsPage() {
   try {
     const user = await requireUser();
 
     return (
       <AppShell
-        description="Store business identity, GST details, plan settings, and the branding that appears across every invoice."
-        title="Business settings"
+        description="Configure your company identity, GST registration, bank details, and dual-cloud database backup."
+        title="Settings"
         user={user}
       >
         <SettingsForm user={user} />

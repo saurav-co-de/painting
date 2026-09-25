@@ -1,134 +1,244 @@
 import Link from "next/link";
 import PublicNav from "@/components/PublicNav";
+import {
+  IconCheck,
+  IconInvoice,
+  IconQuotation,
+  IconCustomers,
+  IconShieldCheck,
+  IconDownload
+} from "@/components/Icons";
 
 const features = [
-  "Traditional Indian GST invoice format for contractors and interior firms",
-  "Customer management, invoice history, payment tracking, and SaaS pricing",
-  "PDF export, print-ready bills, and email or WhatsApp sharing links"
+  {
+    title: "Traditional Tax Invoice Format",
+    description: "Itemized measurements, work description, square-footage/running-meter units, and compliant GST breakdown."
+  },
+  {
+    title: "Quotations & Estimates",
+    description: "Generate preliminary cost estimates and easily track validity, customer acceptance, and status."
+  },
+  {
+    title: "Customer Directory & History",
+    description: "Keep client GSTIN, contact numbers, and billing addresses saved for instant invoice generation."
+  },
+  {
+    title: "Print & PDF Downloads",
+    description: "Crisp vector-sharp PDF generation and printer-ready A4 layouts ready for WhatsApp and email dispatch."
+  }
 ];
 
 const plans = [
-  { name: "Free", price: "Rs 0", detail: "10 invoices per month with core billing tools" },
-  { name: "Pro", price: "Rs 799", detail: "Unlimited invoices, branding, reports, reminders" },
-  { name: "Enterprise", price: "Custom", detail: "Team access, analytics, and API workflows" }
+  {
+    name: "Free",
+    price: "₹0",
+    period: "forever",
+    description: "Ideal for freelancers, individual contractors, and small workshops.",
+    features: ["10 invoices per month", "Traditional GST format", "Customer directory", "PDF & print downloads"]
+  },
+  {
+    name: "Pro",
+    price: "₹799",
+    period: "per month",
+    popular: true,
+    description: "For growing contractors, interior designers, and painting firms.",
+    features: [
+      "Unlimited invoices & quotations",
+      "Custom branding & signature stamp",
+      "Advance payment tracking",
+      "Dual-database backup & resilience",
+      "Priority WhatsApp sharing"
+    ]
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "tailored",
+    description: "For multi-site contracting firms requiring custom roles and data feeds.",
+    features: [
+      "Multi-user team access",
+      "Custom billing templates",
+      "Automated backup exports",
+      "Dedicated account manager"
+    ]
+  }
 ];
 
 export default function LandingHero() {
   return (
-    <>
+    <div className="min-h-screen bg-slate-50">
       <PublicNav />
-      <main className="relative min-w-0 overflow-hidden px-2 py-3 sm:px-6 sm:py-4 xl:px-8">
-        <div className="mx-auto w-full max-w-[1800px] space-y-6">
-          <section className="hero-card min-h-[calc(100svh-6rem)] p-4 sm:p-8 lg:p-12">
-            <div className="grid min-h-[calc(100svh-12rem)] gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
-              <div className="min-w-0">
-                <span className="inline-flex max-w-full rounded-lg border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/90 sm:px-4 sm:tracking-[0.18em]">
-                  SaaS Billing Platform
-                </span>
-                <h1 className="font-display mt-6 max-w-5xl text-4xl leading-[1.04] text-white sm:text-5xl xl:text-6xl">
-                  BuildBill AI helps Indian businesses bill like pros.
-                </h1>
-                <p className="mt-6 max-w-3xl text-base leading-8 text-white/85 sm:text-lg">
-                  Create professional GST invoices, track payments, manage customers, and
-                  deliver polished PDFs that feel familiar to contractors, interiors teams,
-                  painters, and fast-moving service businesses.
-                </p>
 
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <Link className="button-light" href="/signup">
-                    Start free
-                  </Link>
-                  <Link className="button-dark" href="/login">
-                    View demo workspace
-                  </Link>
-                </div>
+      {/* Hero Section */}
+      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-6">
+            <span className="badge badge-paid">
+              Contractor & Interior GST Invoicing
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+              Indian businesses bill faster with{" "}
+              <span className="text-teal-700">BuildBill AI</span>
+            </h1>
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
+              Create professional, traditional GST invoices and quotations in seconds.
+              Track payments, manage client records, and generate print-ready PDFs without
+              fighting complex accounting software.
+            </p>
 
-                <div className="mt-8 flex flex-wrap gap-3 text-sm text-white/85">
-                  <span className="break-all">Demo: demo@buildbill.ai</span>
-                  <span>Password: buildbill123</span>
-                </div>
-              </div>
-
-              <div className="min-w-0 rounded-lg border border-white/20 bg-white/10 p-3 backdrop-blur-xl sm:p-6">
-                <div className="rounded-lg bg-white p-4 text-slate-950 shadow-2xl shadow-slate-950/20 sm:p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.24em]">
-                        Invoice Snapshot
-                      </p>
-                      <h2 className="font-display mt-2 break-words text-2xl">BB-2026-014</h2>
-                    </div>
-                    <span className="shrink-0 rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-emerald-900 sm:tracking-[0.14em]">
-                      Paid
-                    </span>
-                  </div>
-
-                  <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                    <div className="stat-card bg-slate-950 text-white">
-                      <p className="text-xs uppercase tracking-[0.08em] text-slate-400 sm:tracking-[0.18em]">Total</p>
-                      <p className="mt-3 text-2xl font-semibold">Rs 1.84L</p>
-                    </div>
-                    <div className="stat-card">
-                      <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">GST</p>
-                      <p className="mt-3 text-2xl font-semibold text-slate-950">Rs 27.9K</p>
-                    </div>
-                    <div className="stat-card">
-                      <p className="text-xs uppercase tracking-[0.08em] text-slate-500 sm:tracking-[0.18em]">Items</p>
-                      <p className="mt-3 text-2xl font-semibold text-slate-950">12</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 rounded-lg bg-[var(--surface)] p-4">
-                    <div className="flex flex-col gap-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
-                      <p className="text-sm font-semibold">Modular kitchen installation</p>
-                      <p className="text-sm font-semibold min-[420px]:shrink-0">Rs 82,600</p>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between text-sm text-slate-500">
-                      <span>CGST + SGST</span>
-                      <span>18%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="glass-card p-5 sm:p-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--brand)] sm:tracking-[0.28em]">
-                Why teams choose it
-              </p>
-              <div className="mt-5 space-y-4">
-                {features.map((feature) => (
-                  <div className="rounded-xl border border-slate-200/75 bg-white/80 p-4" key={feature}>
-                    <p className="text-sm leading-7 text-slate-700">{feature}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="glass-card p-5 sm:p-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--accent)] sm:tracking-[0.28em]">
-                Subscription plans
-              </p>
-              <div className="mt-5 grid gap-4">
-                {plans.map((plan) => (
-                  <article className="rounded-xl border border-slate-200/75 bg-white/80 p-5" key={plan.name}>
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="font-display text-2xl text-slate-950">{plan.name}</h3>
-                      <p className="text-lg font-semibold text-slate-950">{plan.price}</p>
-                    </div>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">{plan.detail}</p>
-                  </article>
-                ))}
-              </div>
-              <Link className="button-primary mt-6" href="/pricing">
-                Explore pricing
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <Link className="button-primary w-full sm:w-auto text-base py-3 px-6" href="/signup">
+                Start Free Workspace
+              </Link>
+              <Link className="button-secondary w-full sm:w-auto text-base py-3 px-6" href="/login">
+                Explore Demo Account
               </Link>
             </div>
-          </section>
+
+            <div className="flex items-center gap-6 pt-4 text-xs text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <IconCheck className="w-4 h-4 text-teal-700" />
+                No credit card required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <IconCheck className="w-4 h-4 text-teal-700" />
+                CGST + SGST / IGST ready
+              </span>
+            </div>
+          </div>
+
+          {/* Interactive Invoice Sample Preview Card */}
+          <div className="card p-6 shadow-md bg-white border border-slate-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  Tax Invoice Preview
+                </span>
+                <p className="font-bold text-slate-900 text-lg">BB-2026-001</p>
+              </div>
+              <span className="badge badge-paid">Paid</span>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600">
+              <div>
+                <span className="text-slate-400 block">Billed To</span>
+                <span className="font-semibold text-slate-800">Avanta Residences</span>
+              </div>
+              <div className="text-right">
+                <span className="text-slate-400 block">Project Site</span>
+                <span className="font-semibold text-slate-800">3BHK Renovation</span>
+              </div>
+            </div>
+
+            {/* Line items mini preview */}
+            <div className="mt-4 rounded-lg bg-slate-50 p-3 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-700 font-medium">
+                <span>Modular wardrobe installation</span>
+                <span>₹74,000.00</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-700 font-medium">
+                <span>False ceiling work</span>
+                <span>₹81,250.00</span>
+              </div>
+              <div className="pt-2 border-t border-slate-200 flex justify-between items-center text-slate-900 font-bold text-sm">
+                <span>Total Amount (incl. 18% GST)</span>
+                <span className="text-teal-800">₹1,83,195.00</span>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between pt-4 border-t border-slate-100 text-xs text-slate-500">
+              <span>Ready for download in 1 click</span>
+              <span className="inline-flex items-center gap-1 font-semibold text-teal-700">
+                <IconDownload className="w-3.5 h-3.5" />
+                <span>PDF Available</span>
+              </span>
+            </div>
+          </div>
         </div>
+
+        {/* Feature Grid */}
+        <section className="mt-24">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Everything contractor businesses need
+            </h2>
+            <p className="mt-3 text-sm text-slate-600">
+              Built for real field requirements — no bloated corporate accounting baggage.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feat) => (
+              <div className="card p-6" key={feat.title}>
+                <h3 className="font-bold text-slate-900 text-base">{feat.title}</h3>
+                <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
+                  {feat.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Plans Section */}
+        <section className="mt-24">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Transparent, simple pricing
+            </h2>
+            <p className="mt-3 text-sm text-slate-600">
+              Start with free billing and upgrade when your client volume grows.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {plans.map((plan) => (
+              <div
+                className={`card p-6 flex flex-col justify-between ${
+                  plan.popular ? "border-teal-600 ring-2 ring-teal-600/10 shadow-sm" : ""
+                }`}
+                key={plan.name}
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
+                    {plan.popular && (
+                      <span className="badge badge-paid">Most Popular</span>
+                    )}
+                  </div>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold text-slate-900">{plan.price}</span>
+                    <span className="text-xs text-slate-500">/{plan.period}</span>
+                  </div>
+                  <p className="mt-3 text-xs text-slate-600">{plan.description}</p>
+
+                  <div className="mt-6 space-y-2.5 pt-6 border-t border-slate-100">
+                    {plan.features.map((item) => (
+                      <div className="flex items-center gap-2 text-xs text-slate-700" key={item}>
+                        <IconCheck className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-4">
+                  <Link
+                    className={`w-full ${plan.popular ? "button-primary" : "button-secondary"}`}
+                    href="/signup"
+                  >
+                    Get Started with {plan.name}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
-    </>
+
+      {/* Footer */}
+      <footer className="mt-20 border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} BuildBill AI. Simple, compliant Indian GST billing.</p>
+      </footer>
+    </div>
   );
 }
